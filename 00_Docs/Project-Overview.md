@@ -1,12 +1,13 @@
 # Santum AI PWA - Project Overview
 
 ## What is this project?
-The **Santum AI PWA** is a standalone Progressive Web Application (PWA) designed to provide users with emotional-wellbeing support through text-based counseling conversations. It acts as an AI therapist, using OpenAI's models (GPT-4.1 mini and GPT-4.1) to converse with users.
+The **Santum AI PWA** is a standalone Progressive Web Application (PWA) designed to provide users with emotional-wellbeing support through text-based counseling conversations. It acts as an AI therapist, currently using Llama 3 (via Groq) for high-performance inference, with plans to migrate to OpenAI's GPT-4.1 in future updates.
 
 The app will serve as an extension to an existing counseling platform, `santum.net`, but will run as its own standalone web app with its own branding, installable on mobile devices.
 
 ## Core Features & Functionality
-- **AI Counseling Chat:** Users can text chat with an AI for emotional support. Simple interactions (greetings, FAQ) are handled by a faster model (GPT-4.1 mini), while deeper, complex emotional reasoning uses a more advanced model (GPT-4.1).
+- **AI Counseling Chat:** Users can text chat with an AI for emotional support. Simple interactions (greetings, FAQ) are handled by a faster model (**Llama 3 8B** via Groq), while deeper, complex emotional reasoning uses a more advanced model (**Llama 3 70B** via Groq).
+- **Future Migration:** Integration with OpenAI GPT-4.1 mini and GPT-4.1 is planned for future phases to handle increasingly complex reasoning tasks.
 - **RAG (Retrieval-Augmented Generation):** The AI will be trained/fed with specific psychological content (like CBT manuals). Free users get basic content, while premium users get access to deeper, specialized CBT content.
 - **Safety First:** The app includes crisis resources, mood check-ins, safety disclaimers, abuse detection, and a "Talk to a human therapist" escalation button.
 - **Cross-Platform:** Built as a PWA, meaning it works as a website but can be installed on phones/desktops like a native app. Fully responsive across all devices and browsers.

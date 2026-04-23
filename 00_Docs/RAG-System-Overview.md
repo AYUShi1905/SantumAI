@@ -10,7 +10,7 @@ A high-performance, scalable Python-based RAG (Retrieval-Augmented Generation) m
 | **Orchestration** | **LangChain** | Standardizes the "Chain" of logic between the user, the database, and the LLM. |
 | **Vector Database** | **Qdrant** | Production-grade, Rust-based engine for sub-10ms semantic search. |
 | **Embedding Model** | **Jina (v2-base-en)** | 8k context window allows for high-quality embedding of long manual sections. |
-| **LLM (Brain)** | **Llama 3 (via Groq)** | Ultra-fast inference for prototyping; switchable to GPT-4.1 (OpenAI) later. |
+| **LLM (Brain)** | **Llama 3 (via Groq)** | Current primary LLM for all reasoning; ultra-fast inference. (OpenAI GPT-4.1 migration planned). |
 
 ## 3. Data Processing Flow (Ingestion)
 *This happens once when new manuals are added.*
