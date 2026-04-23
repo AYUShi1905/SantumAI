@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
 from api.v1.ingest import router as ingest_router
 from api.v1.summarize import router as summarize_router
+from api.v1.chat import router as chat_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -22,6 +23,7 @@ app.add_middleware(
 # Register Routers
 app.include_router(ingest_router, prefix="/api/v1")
 app.include_router(summarize_router, prefix="/api/v1")
+app.include_router(chat_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

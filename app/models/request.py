@@ -11,4 +11,11 @@ class SummarizeRequest(BaseModel):
 class ChatRequest(BaseModel):
     query: str
     chat_history: Optional[List[ChatMessage]] = []
+class Message(BaseModel):
+    role: str # 'human' or 'ai'
+    content: str
+
+class ChatRequest(BaseModel):
+    message: str
+    chat_history: List[Message] = []
     use_reasoning: bool = False
