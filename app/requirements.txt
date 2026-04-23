@@ -4,9 +4,12 @@ langchain
 langchain-openai
 langchain-community
 langchain-groq
+langchain-qdrant
 qdrant-client
 pymupdf
 pydantic-settings
 python-dotenv
 tiktoken
 pydantic
+python-multipart
+python-docx

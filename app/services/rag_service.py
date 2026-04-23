@@ -5,8 +5,8 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import BaseMessage
 
-from app.services.llm_provider import LLMProviderService
-from app.services.vector_db import VectorDBService
+from services.llm_provider import LLMProviderService
+from services.vector_db import VectorDBService
 
 class RAGService:
     """

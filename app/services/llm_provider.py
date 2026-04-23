@@ -1,5 +1,5 @@
 from langchain_groq import ChatGroq
-from app.core.config import settings
+from core.config import settings
 from typing import Optional
 
 class LLMProviderService:
