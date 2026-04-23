@@ -1,7 +1,8 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from services.processor import DocumentProcessorService
 from services.vector_db import VectorDBService
 from models.response import IngestResponse
+from typing import Optional
 import logging
 
 router = APIRouter(prefix="/ingest", tags=["ingestion"])
@@ -9,9 +10,18 @@ router = APIRouter(prefix="/ingest", tags=["ingestion"])
 logger = logging.getLogger(__name__)
 
 @router.post("/file", response_model=IngestResponse)
-async def ingest_file(file: UploadFile = File(...)):
+async def ingest_file(
+    file: UploadFile = File(...),
+    header_margin: Optional[float] = Form(0.1),
+    footer_margin: Optional[float] = Form(0.1)
+):
     """
     Endpoint to upload a PDF or DOCX, process its content, and store it in the vector database.
+    
+    Args:
+        file: The PDF or DOCX file to ingest.
+        header_margin: Percentage (0.0 - 0.2) of the top of the PDF to ignore (default 0.1).
+        footer_margin: Percentage (0.0 - 0.2) of the bottom of the PDF to ignore (default 0.1).
     """
     allowed_extensions = (".pdf", ".docx")
     if not file.filename.lower().endswith(allowed_extensions):
@@ -27,7 +37,12 @@ async def ingest_file(file: UploadFile = File(...)):
         # 2. Process/Chunk File
         processor = DocumentProcessorService()
         try:
-            documents = processor.process_file(content, file.filename)
+            documents = processor.process_file(
+                content, 
+                file.filename,
+                header_margin=header_margin,
+                footer_margin=footer_margin
+            )
         except ValueError as ve:
             if str(ve) == "SCANNED_PDF":
                 raise HTTPException(

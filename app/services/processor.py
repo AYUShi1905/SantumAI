@@ -18,14 +18,30 @@ class DocumentProcessorService:
             is_separator_regex=False,
         )
 
-    def process_pdf(self, file_content: bytes) -> str:
-        """Extracts text from PDF content. Detects scanned documents."""
+    def process_pdf(self, file_content: bytes, header_margin: float = 0.1, footer_margin: float = 0.1) -> str:
+        """Extracts text from PDF content within a safe zone (ignoring headers/footers)."""
         doc = fitz.open(stream=file_content, filetype="pdf")
         text = ""
         page_count = len(doc)
         
         for page in doc:
-            text += page.get_text()
+            # Get page dimensions
+            rect = page.rect
+            width = rect.width
+            height = rect.height
+            
+            # Define safe zone (clipping rectangle)
+            # x0, y0, x1, y1
+            safe_rect = fitz.Rect(
+                0, 
+                height * header_margin, 
+                width, 
+                height * (1.0 - footer_margin)
+            )
+            
+            # Extract text only from the safe zone
+            text += page.get_text("text", clip=safe_rect)
+            
         doc.close()
 
         if page_count > 0 and not text.strip():
@@ -34,16 +50,16 @@ class DocumentProcessorService:
         return text
 
     def process_docx(self, file_content: bytes) -> str:
-        """Extracts text from DOCX content."""
+        """Extracts text from DOCX content (paragraphs only)."""
         doc = docx.Document(io.BytesIO(file_content))
         return "\n".join([para.text for para in doc.paragraphs])
 
-    def process_file(self, file_content: bytes, filename: str) -> List[Document]:
+    def process_file(self, file_content: bytes, filename: str, header_margin: float = 0.1, footer_margin: float = 0.1) -> List[Document]:
         """
         Parses file content based on extension and returns chunked Documents.
         """
         if filename.lower().endswith(".pdf"):
-            full_text = self.process_pdf(file_content)
+            full_text = self.process_pdf(file_content, header_margin, footer_margin)
         elif filename.lower().endswith(".docx"):
             full_text = self.process_docx(file_content)
         else:
