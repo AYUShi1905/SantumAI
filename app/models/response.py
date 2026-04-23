@@ -7,6 +7,10 @@ class IngestResponse(BaseModel):
     chunks_processed: int
     status: str = "success"
 
+class SummarizeResponse(BaseModel):
+    summary: str
+    status: str = "success"
+
 class ErrorResponse(BaseModel):
     detail: str
     status: str = "error"
