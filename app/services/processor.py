@@ -1,8 +1,11 @@
 import fitz  # PyMuPDF
 import docx
+from docx.table import Table
+from docx.text.paragraph import Paragraph
+from docx.document import Document as DocxDocument
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
-from typing import List
+from typing import List, Iterator, Union
 import io
 
 class DocumentProcessorService:
@@ -49,10 +52,72 @@ class DocumentProcessorService:
             
         return text
 
+    def _iter_block_items(self, parent: Union[DocxDocument, Table]) -> Iterator[Union[Paragraph, Table]]:
+        """
+        Yield each paragraph and table child within `parent`, in document order.
+        Each returned value is an instance of either Table or Paragraph.
+        """
+        if isinstance(parent, DocxDocument):
+            parent_elm = parent.element.body
+        elif isinstance(parent, Table):
+            parent_elm = parent._element
+        else:
+            raise TypeError("Parent must be a Document or Table object")
+
+        for child in parent_elm.iterchildren():
+            if isinstance(child, docx.oxml.text.paragraph.CT_P):
+                yield Paragraph(child, parent)
+            elif isinstance(child, docx.oxml.table.CT_Tbl):
+                yield Table(child, parent)
+
+    def _table_to_markdown(self, table: Table) -> str:
+        """
+        Converts a docx Table to a Markdown string.
+        Optimized for RAG: repeats text in merged cells and sanitizes content.
+        """
+        markdown_rows = []
+        
+        # Get dimensions of the table
+        rows = table.rows
+        if not rows:
+            return ""
+            
+        # We use cell objects to handle text and merged status
+        for i, row in enumerate(rows):
+            clean_cells = []
+            for cell in row.cells:
+                # Clean text: remove newlines and pipes to avoid breaking MD structure
+                # Repeating text in merged cells is default behavior of cell.text in python-docx
+                text = cell.text.replace("\n", " ").replace("|", "\\|").strip()
+                clean_cells.append(text)
+            
+            markdown_rows.append(f"| {' | '.join(clean_cells)} |")
+            
+            # Add separator after header row
+            if i == 0:
+                separator = f"| {' | '.join(['---'] * len(clean_cells))} |"
+                markdown_rows.append(separator)
+        
+        return "\n".join(markdown_rows)
+
     def process_docx(self, file_content: bytes) -> str:
-        """Extracts text from DOCX content (paragraphs only)."""
+        """
+        Extracts text from DOCX content, including tables in Markdown format,
+        preserving the original document order.
+        """
         doc = docx.Document(io.BytesIO(file_content))
-        return "\n".join([para.text for para in doc.paragraphs])
+        full_content = []
+
+        for block in self._iter_block_items(doc):
+            if isinstance(block, Paragraph):
+                if block.text.strip():
+                    full_content.append(block.text)
+            elif isinstance(block, Table):
+                table_md = self._table_to_markdown(block)
+                if table_md:
+                    full_content.append(f"\n{table_md}\n")
+
+        return "\n".join(full_content)
 
     def process_file(self, file_content: bytes, filename: str, header_margin: float = 0.1, footer_margin: float = 0.1) -> List[Document]:
         """
