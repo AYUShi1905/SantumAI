@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+langchain
+langchain-openai
+langchain-community
+langchain-groq
+qdrant-client
+pymupdf
+pydantic-settings
+python-dotenv
+tiktoken
+pydantic
