@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 async def ingest_file(
     file: UploadFile = File(...),
     header_margin: Optional[float] = Form(0.1),
-    footer_margin: Optional[float] = Form(0.1)
+    footer_margin: Optional[float] = Form(0.1),
+    is_cbt_manual: bool = Form(False)
 ):
     """
     Endpoint to upload a PDF or DOCX, process its content, and store it in the vector database.
@@ -22,6 +23,7 @@ async def ingest_file(
         file: The PDF or DOCX file to ingest.
         header_margin: Percentage (0.0 - 0.2) of the top of the PDF to ignore (default 0.1).
         footer_margin: Percentage (0.0 - 0.2) of the bottom of the PDF to ignore (default 0.1).
+        is_cbt_manual: Whether this document is a CBT manual (restricted to Premium users).
     """
     allowed_extensions = (".pdf", ".docx")
     if not file.filename.lower().endswith(allowed_extensions):
@@ -41,7 +43,8 @@ async def ingest_file(
                 content, 
                 file.filename,
                 header_margin=header_margin,
-                footer_margin=footer_margin
+                footer_margin=footer_margin,
+                is_cbt_manual=is_cbt_manual
             )
         except ValueError as ve:
             if str(ve) == "SCANNED_PDF":

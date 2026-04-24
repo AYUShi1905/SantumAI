@@ -79,6 +79,7 @@ async def chat_rag_stream(request: ChatRequest):
         generator = rag_service.get_streaming_response(
             query=request.message,
             chat_history=history,
+            plan_level=request.plan_level,
             use_reasoning=request.use_reasoning
         )
 

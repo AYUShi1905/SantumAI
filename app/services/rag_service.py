@@ -1,4 +1,4 @@
-from typing import AsyncGenerator, List, Dict, Any
+from typing import AsyncGenerator, List, Dict, Any, Optional
 import json
 from langchain_classic.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
@@ -7,6 +7,8 @@ from langchain_core.messages import BaseMessage
 
 from services.llm_provider import LLMProviderService
 from services.vector_db import VectorDBService
+from services.router import RouterService
+from models.request import PlanLevel
 
 class RAGService:
     """
@@ -16,6 +18,7 @@ class RAGService:
     def __init__(self):
         self.llm_service = LLMProviderService()
         self.vector_db_service = VectorDBService()
+        self.router_service = RouterService()
 
     def _get_prompts(self) -> tuple:
         """Defines the system prompts for retrieval and answering."""
@@ -55,15 +58,30 @@ class RAGService:
         self, 
         query: str, 
         chat_history: List[BaseMessage],
-        use_reasoning: bool = False
+        plan_level: PlanLevel = PlanLevel.FREE,
+        use_reasoning: Optional[bool] = None
     ) -> AsyncGenerator[str, None]:
         """
         Generates a streaming RAG response.
         Final chunk will contain token usage metadata.
         """
+        # 1. Automatic Routing (Model Switching)
+        if use_reasoning is None:
+            classification = await self.router_service.classify(query)
+            use_reasoning = (classification == "complex")
+        
         llm = self.llm_service.get_llm(use_reasoning=use_reasoning)
         vectorstore = self.vector_db_service.get_vectorstore()
-        retriever = vectorstore.as_retriever()
+        
+        # 2. Plan-based Filtering
+        # If user is NOT premium, they only get non-CBT content
+        search_kwargs = {"k": 5}
+        if plan_level != PlanLevel.PREMIUM:
+            search_kwargs["filter"] = {
+                "metadata.is_cbt_manual": False
+            }
+        
+        retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
 
         contextualize_q_prompt, qa_prompt = self._get_prompts()
 
@@ -81,16 +99,15 @@ class RAGService:
         total_tokens = 0
         
         async for chunk in rag_chain.astream({"input": query, "chat_history": chat_history}):
-            # LangChain retrieval chain yields dictionaries. 
-            # 'answer' is the key for the generated text.
             if "answer" in chunk:
                 yield chunk["answer"]
-                # Rough token estimation for streaming (tiktoken should be used for precision)
                 total_tokens += len(chunk["answer"].split()) * 1.3 
 
         # Final metadata chunk as required by docs
         metadata = {
             "total_tokens": int(total_tokens),
-            "status": "completed"
+            "status": "completed",
+            "model_used": "reasoning" if use_reasoning else "simple",
+            "plan": plan_level
         }
-        yield f"\n{json.dumps(metadata)}"
+        yield f"\n\n{json.dumps(metadata)}"

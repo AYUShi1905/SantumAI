@@ -119,7 +119,14 @@ class DocumentProcessorService:
 
         return "\n".join(full_content)
 
-    def process_file(self, file_content: bytes, filename: str, header_margin: float = 0.1, footer_margin: float = 0.1) -> List[Document]:
+    def process_file(
+        self, 
+        file_content: bytes, 
+        filename: str, 
+        header_margin: float = 0.1, 
+        footer_margin: float = 0.1,
+        is_cbt_manual: bool = False
+    ) -> List[Document]:
         """
         Parses file content based on extension and returns chunked Documents.
         """
@@ -136,7 +143,10 @@ class DocumentProcessorService:
         # Create initial document
         base_doc = Document(
             page_content=full_text,
-            metadata={"source": filename}
+            metadata={
+                "source": filename,
+                "is_cbt_manual": is_cbt_manual
+            }
         )
 
         # Split into chunks

@@ -9,8 +9,10 @@ This document tracks all approved features and improvements.
 *   **[x] File Management:** Added List, Delete by Filename, and Clear All endpoints.
 
 ## 1. Chat & Reasoning Phase
-*   **[/] Chat Request Models:** Implemented but needs cleanup (duplicate models).
-*   **[/] Chat API Endpoint:** Test endpoint created (`/chat/test-stream`). **Next Task:** Production RAG-based `/chat/stream`.
+*   **[x] Chat Request Models:** Updated with `PlanLevel` and `use_reasoning` override.
+*   **[x] Production RAG Endpoint:** `/chat/stream` implemented with automated model switching.
+*   **[x] Multi-Model Strategy:** Implemented `RouterService` for 8B vs 70B switching.
+*   **[x] Plan-Aware RAG:** Content filtering based on subscription level (CBT vs non-CBT).
 *   **[ ] Tiktoken Integration:** Implement precise token counting in `app/utils/tokens.py`.
 *   **[ ] Safety Prompt Engineering:** Refine the system prompt for empathetic counseling and crisis disclaimer.
 
