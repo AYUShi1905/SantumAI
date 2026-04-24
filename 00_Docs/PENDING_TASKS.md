@@ -20,7 +20,7 @@ This document tracks all approved features and improvements.
 *   **[x] Prompt Engineering:** Professional/empathetic summary prompt implemented.
 
 ## 3. Maintenance & Cleanup (New)
-*   **[ ] Models Cleanup:** De-duplicate `Message`, `ChatMessage`, and `ChatRequest` in `app/models/request.py`.
+*   **[x] Models Cleanup:** De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
 *   **[ ] Tests:** Add unit/integration tests for summarization and chat.
 
 ---
