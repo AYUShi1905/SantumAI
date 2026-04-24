@@ -23,6 +23,7 @@ This document tracks all approved features and improvements.
 
 ## 3. Maintenance & Cleanup (New)
 *   **[x] Models Cleanup:** De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
+*   **[x] Streamlit Frontend:** Implemented a full-featured testing UI in `frontend/app.py`.
 *   **[ ] Tests:** Add unit/integration tests for summarization and chat.
 
 ## 4. Observability & Monitoring
