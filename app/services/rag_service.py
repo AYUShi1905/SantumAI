@@ -5,6 +5,7 @@ from langchain_classic.chains.combine_documents import create_stuff_documents_ch
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import BaseMessage
 
+from qdrant_client.http import models as rest
 from services.llm_provider import LLMProviderService
 from services.vector_db import VectorDBService
 from services.router import RouterService
@@ -77,9 +78,14 @@ class RAGService:
         # If user is NOT premium, they only get non-CBT content
         search_kwargs = {"k": 5}
         if plan_level != PlanLevel.PREMIUM:
-            search_kwargs["filter"] = {
-                "metadata.is_cbt_manual": False
-            }
+            search_kwargs["filter"] = rest.Filter(
+                must=[
+                    rest.FieldCondition(
+                        key="metadata.is_cbt_manual",
+                        match=rest.MatchValue(value=False)
+                    )
+                ]
+            )
         
         retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
 

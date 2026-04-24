@@ -41,11 +41,17 @@ class VectorDBService:
                 )
                 
                 # Create payload index for the 'source' field to allow efficient deletion/filtering
-                # Note: LangChain stores metadata inside a 'metadata' object in the payload
                 self.client.create_payload_index(
                     collection_name=self.collection_name,
                     field_name="metadata.source",
                     field_schema=rest.PayloadSchemaType.KEYWORD
+                )
+                
+                # Create payload index for 'is_cbt_manual' for plan-based filtering
+                self.client.create_payload_index(
+                    collection_name=self.collection_name,
+                    field_name="metadata.is_cbt_manual",
+                    field_schema=rest.PayloadSchemaType.BOOL
                 )
         except Exception as e:
             # Log error or handle as needed
