@@ -22,9 +22,11 @@ This document tracks all approved features and improvements.
 *   **[x] Prompt Engineering:** Professional/empathetic summary prompt implemented.
 
 ## 3. Maintenance & Cleanup (New)
-*   **[x] Models Cleanup:** De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
-*   **[x] Streamlit Frontend:** Implemented a full-featured testing UI in `frontend/app.py`.
-*   **[ ] Tests:** Add unit/integration tests for summarization and chat.
+*   [x] **RAG Hallucination Fix:** Implemented greeting heuristic and prompt robustness to prevent irrelevant context usage for simple messages.
+*   [x] Models Cleanup: De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
+*   [x] Streamlit Frontend: Implemented a full-featured testing UI in `frontend/app.py`.
+*   [ ] Tests: Add unit/integration tests for summarization and chat.
+
 
 ## 4. Observability & Monitoring
 *   **[x] LangSmith Integration:** Configured tracing for LLM and RAG chains.

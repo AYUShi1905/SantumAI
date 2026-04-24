@@ -52,15 +52,19 @@ class RAGService:
             qa_messages.append(("system", f"Summary of previous conversation: {history_summary}"))
 
         system_prompt = (
-            "You are an empathetic, non-judgmental, and supportive AI counselor. "
-            "Your primary goal is to build a therapeutic alliance through active listening and validation. "
-            "\n\nGUIDELINES:\n"
-            "1. EMPATHY & VALIDATION: Always acknowledge and validate the user's feelings first. Use reflective listening (e.g., 'It sounds like...', 'I can hear how much...').\n"
-            "2. SITUATIONAL SAFETY: If (and only if) the user expresses thoughts of self-harm, suicide, or immediate danger to themselves or others, you MUST provide an empathetic response followed by a crisis resource: 'If you are in immediate danger, please contact emergency services or a crisis hotline like 988 (in the US).'\n"
-            "3. CLINICAL BOUNDARIES: You cannot diagnose mental health conditions or recommend/prescribe medications. If asked, gently redirect the user to a licensed medical professional or psychiatrist.\n"
-            "4. RAG GROUNDING: Use the retrieved context from counseling manuals to guide your suggestions. If the answer isn't in the context, remain supportive and suggest discussing the topic with a human therapist.\n"
-            "5. TONE & CONCISENESS: Maintain a warm, conversational, and professional tone. Keep responses under 250 words.\n\n"
-            "Retrieved Context:\n{context}"
+            """You are an empathetic, non-judgmental, and supportive AI counselor. Your primary goal is to build a strong therapeutic alliance through active listening, validation, and thoughtful guidance.
+
+            GUIDELINES:
+            1. EMPATHY & VALIDATION: Always begin by acknowledging and validating the user’s feelings using reflective listening (e.g., “It sounds like…”, “I can hear how much…”).
+            2. CONTEXT USE (RAG): Use retrieved context from counseling manuals to inform your responses when relevant. If the context is not applicable (e.g., greetings), ignore it. Do not assume the user’s situation matches the context unless explicitly stated.
+            3. SAFETY: If (and only if) the user expresses thoughts of self-harm, suicide, or immediate danger, respond empathetically and include a crisis resource (e.g., encourage contacting local emergency services or a crisis hotline such as 988 in the US).
+            4. CLINICAL BOUNDARIES: Do not diagnose conditions or prescribe/recommend medications. If asked, gently guide the user toward a licensed professional.
+            5. UNCERTAINTY: If the answer is not in the context or unclear, remain supportive and suggest discussing the issue with a human therapist.
+            6. TONE & LENGTH: Maintain a warm, conversational, and professional tone. Keep responses concise (under 250 words).
+
+            Retrieved Context:
+            {context}
+            """
         )
         
         qa_messages.extend([
@@ -91,9 +95,43 @@ class RAGService:
             use_reasoning = (classification == "complex")
         
         llm = self.llm_service.get_llm(use_reasoning=use_reasoning)
+        
+        # 2. HEURISTIC: Skip retrieval for very short queries (greetings)
+        # Short strings (e.g., "Hi", "Hello") often lead to noise in the retriever.
+        # We only skip if there is no chat history (start of conversation).
+        is_greeting = len(query.strip().split()) <= 2 and not chat_history
+        
+        if is_greeting:
+            # Bypass RAG logic and return a direct response
+            # Note: We still follow the streaming pattern for consistency
+            qa_prompt = ChatPromptTemplate.from_messages([
+                ("system", "You are an empathetic and non-judgmental AI counselor."),
+                MessagesPlaceholder("chat_history"),
+                ("human", "{input}"),
+            ])
+            chain = qa_prompt | llm
+            
+            full_response = ""
+            async for chunk in chain.astream({"input": query, "chat_history": chat_history}):
+                if chunk.content:
+                    full_response += chunk.content
+                    yield chunk.content
+            
+            # Final metadata
+            total_tokens = count_tokens(full_response)
+            metadata = {
+                "total_tokens": total_tokens,
+                "status": "completed",
+                "model_used": "reasoning" if use_reasoning else "simple",
+                "plan": plan_level,
+                "mode": "greeting_no_rag"
+            }
+            yield f"\n\n{json.dumps(metadata)}"
+            return
+
         vectorstore = self.vector_db_service.get_vectorstore()
         
-        # 2. Plan-based Filtering
+        # 3. Plan-based Filtering
         # If user is NOT premium, they only get non-CBT content
         search_kwargs = {"k": 5}
         if plan_level != PlanLevel.PREMIUM:
