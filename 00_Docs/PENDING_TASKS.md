@@ -14,7 +14,7 @@ This document tracks all approved features and improvements.
 *   **[x] Multi-Model Strategy:** Implemented `RouterService` for 8B vs 70B switching.
 *   **[x] Plan-Aware RAG:** Content filtering based on subscription level (CBT vs non-CBT).
 *   **[ ] Tiktoken Integration:** Implement precise token counting in `app/utils/tokens.py`.
-*   **[ ] Safety Prompt Engineering:** Refine the system prompt for empathetic counseling and crisis disclaimer.
+*   **[x] Safety Prompt Engineering:** Refined system prompt for empathetic counseling, situational crisis triggers, and clinical boundaries.
 
 ## 2. Chat History Summarization (Complete)
 *   **[x] Summarization Service:** Implemented using Llama 3 8B.
