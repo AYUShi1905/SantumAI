@@ -3,6 +3,7 @@ from fastapi.responses import StreamingResponse
 from models.request import ChatRequest
 from services.llm_provider import LLMProviderService
 from services.rag_service import RAGService
+from utils.tokens import count_tokens
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 import logging
 import json
@@ -44,16 +45,15 @@ async def chat_test_stream(request: ChatRequest):
         messages.append(HumanMessage(content=request.message))
 
         async def generate():
-            total_tokens = 0
+            full_response = ""
             async for chunk in llm.astream(messages):
                 if chunk.content:
+                    full_response += chunk.content
                     yield chunk.content
-                    # Rough token estimation for test
-                    total_tokens += len(chunk.content.split()) * 1.3
             
             # Final metadata chunk
             metadata = {
-                "total_tokens": int(total_tokens),
+                "total_tokens": count_tokens(full_response),
                 "status": "completed",
                 "mode": "test_no_rag"
             }

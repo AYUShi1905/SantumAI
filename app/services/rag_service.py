@@ -10,6 +10,7 @@ from services.llm_provider import LLMProviderService
 from services.vector_db import VectorDBService
 from services.router import RouterService
 from models.request import PlanLevel
+from utils.tokens import count_tokens
 
 class RAGService:
     """
@@ -102,16 +103,20 @@ class RAGService:
         # Create full retrieval chain
         rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
 
-        total_tokens = 0
+        full_response = ""
         
         async for chunk in rag_chain.astream({"input": query, "chat_history": chat_history}):
             if "answer" in chunk:
-                yield chunk["answer"]
-                total_tokens += len(chunk["answer"].split()) * 1.3 
+                answer_part = chunk["answer"]
+                full_response += answer_part
+                yield answer_part
+
+        # Calculate precise tokens using tiktoken
+        total_tokens = count_tokens(full_response)
 
         # Final metadata chunk as required by docs
         metadata = {
-            "total_tokens": int(total_tokens),
+            "total_tokens": total_tokens,
             "status": "completed",
             "model_used": "reasoning" if use_reasoning else "simple",
             "plan": plan_level
