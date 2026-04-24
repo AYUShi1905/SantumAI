@@ -25,27 +25,40 @@ class SummarizationService:
                 lc_messages.append(AIMessage(content=f"Counselor: {msg.content}"))
         return lc_messages
 
-    async def summarize(self, chat_history: List[ChatMessage]) -> str:
+    async def summarize(self, chat_history: List[ChatMessage], existing_summary: str = None) -> str:
         """
-        Generates a concise summary of the provided chat history.
+        Generates or extends a concise summary of the provided chat history.
         """
         if not chat_history:
-            return ""
+            return existing_summary or ""
 
         lc_messages = self._convert_messages(chat_history)
         
+        system_prompt = (
+            "You are an expert supervisor for a counseling service. "
+            "Your task is to provide a concise, third-person summary of the conversation between a User and an AI Counselor. "
+            "Do NOT respond to the user. Do NOT provide advice. "
+            "Only summarize: \n"
+            "1. The user's primary emotional concerns.\n"
+            "2. The main topics discussed.\n"
+            "3. The counselor's approach or suggestions.\n"
+            "Format the output as a single, empathetic, and professional paragraph (max 180 words)."
+        )
+
+        if existing_summary:
+            human_prompt = (
+                "Here is an EXISTING SUMMARY of the previous part of the conversation:\n"
+                f"{existing_summary}\n\n"
+                "Please extend and update this summary based on the following NEW MESSAGES:\n"
+                "{chat_history}\n\n"
+                "Return a single consolidated summary that integrates both the old and new points seamlessly."
+            )
+        else:
+            human_prompt = "Please summarize this conversation history:\n\n{chat_history}"
+
         prompt = ChatPromptTemplate.from_messages([
-            ("system", (
-                "You are an expert supervisor for a counseling service. "
-                "Your task is to provide a concise, third-person summary of the conversation between a User and an AI Counselor. "
-                "Do NOT respond to the user. Do NOT provide advice. "
-                "Only summarize: \n"
-                "1. The user's primary emotional concerns.\n"
-                "2. The main topics discussed.\n"
-                "3. The counselor's approach or suggestions.\n"
-                "Format the output as a single, empathetic, and professional paragraph (max 150 words)."
-            )),
-            ("human", "Please summarize this conversation history:\n\n{chat_history}")
+            ("system", system_prompt),
+            ("human", human_prompt)
         ])
 
         chain = prompt | self.llm

@@ -11,6 +11,8 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 if "backend_url" not in st.session_state:
     st.session_state.backend_url = "http://localhost:8000/api/v1"
+if "current_summary" not in st.session_state:
+    st.session_state.current_summary = None
 
 # Sidebar: Controls & Ingestion
 with st.sidebar:
@@ -72,6 +74,13 @@ with st.sidebar:
             except Exception as e:
                 st.error(f"Connection failed: {str(e)}")
 
+    st.divider()
+    st.subheader("Running Summary")
+    if st.session_state.current_summary:
+        st.info(st.session_state.current_summary)
+    else:
+        st.caption("No summary generated yet. Chat a bit and click the summarize button below.")
+
 # Main Chat Interface
 st.title("💬 Santum AI Counselor")
 st.caption("Empathetic AI counseling powered by Llama 3 & RAG")
@@ -82,12 +91,16 @@ if st.button("📝 Summarize Conversation"):
         st.warning("No conversation to summarize.")
     else:
         try:
-            with st.spinner("Generating summary..."):
-                payload = {"chat_history": st.session_state.messages}
+            with st.spinner("Updating summary..."):
+                payload = {
+                    "chat_history": st.session_state.messages,
+                    "existing_summary": st.session_state.current_summary
+                }
                 response = requests.post(f"{st.session_state.backend_url}/summarize", json=payload)
                 if response.status_code == 200:
                     summary = response.json().get("summary", "")
-                    st.info(f"**Session Summary:**\n\n{summary}")
+                    st.session_state.current_summary = summary
+                    st.info(f"**Updated Session Summary:**\n\n{summary}")
                 else:
                     st.error("Summarization failed.")
         except Exception as e:
@@ -95,6 +108,7 @@ if st.button("📝 Summarize Conversation"):
 
 if st.button("🗑️ Clear Chat History"):
     st.session_state.messages = []
+    st.session_state.current_summary = None
     st.rerun()
 
 # Display chat history
@@ -137,7 +151,7 @@ if prompt := st.chat_input("How are you feeling today?"):
                         try:
                             metadata = json.loads(chunk)
                             st.caption(
-                                f"✅ Response completed | "
+                                f"Response completed | "
                                 f"Tokens: {metadata.get('total_tokens', 'N/A')} | "
                                 f"Model: {metadata.get('model_used', 'N/A')} | "
                                 f"Plan: {metadata.get('plan', 'N/A')}"

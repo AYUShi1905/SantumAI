@@ -20,3 +20,4 @@ class ChatRequest(BaseModel):
 
 class SummarizeRequest(BaseModel):
     chat_history: List[ChatMessage] = Field(..., description="The sequence of messages to summarize")
+    existing_summary: Optional[str] = Field(default=None, description="Previous summary to be extended with new history")

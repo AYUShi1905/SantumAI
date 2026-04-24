@@ -18,7 +18,10 @@ async def summarize_chat(request: SummarizeRequest):
             raise HTTPException(status_code=400, detail="Chat history cannot be empty.")
             
         summarizer = SummarizationService()
-        summary = await summarizer.summarize(request.chat_history)
+        summary = await summarizer.summarize(
+            chat_history=request.chat_history, 
+            existing_summary=request.existing_summary
+        )
         
         return SummarizeResponse(summary=summary)
         
