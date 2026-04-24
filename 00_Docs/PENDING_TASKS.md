@@ -23,5 +23,8 @@ This document tracks all approved features and improvements.
 *   **[x] Models Cleanup:** De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
 *   **[ ] Tests:** Add unit/integration tests for summarization and chat.
 
+## 4. Observability & Monitoring
+*   **[x] LangSmith Integration:** Configured tracing for LLM and RAG chains.
+
 ---
 *Updated: April 23, 2026*

@@ -21,6 +21,27 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Santum AI RAG Service"
     DEBUG: bool = False
 
+    # LangSmith Tracing
+    LANGSMITH_TRACING: bool = False
+    LANGSMITH_ENDPOINT: str = "https://api.smith.langchain.com"
+    LANGSMITH_API_KEY: Optional[str] = None
+    LANGSMITH_PROJECT: str = "santum-ai"
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()
+
+# Export LangSmith variables to environment for LangChain SDK
+import os
+if settings.LANGSMITH_TRACING:
+    # Legacy/Standard LangChain vars
+    os.environ["LANGCHAIN_TRACING_V2"] = "true"
+    os.environ["LANGCHAIN_ENDPOINT"] = settings.LANGSMITH_ENDPOINT
+    os.environ["LANGCHAIN_API_KEY"] = settings.LANGSMITH_API_KEY or ""
+    os.environ["LANGCHAIN_PROJECT"] = settings.LANGSMITH_PROJECT
+    # Modern LangSmith vars
+    os.environ["LANGSMITH_TRACING"] = "true"
+    os.environ["LANGSMITH_ENDPOINT"] = settings.LANGSMITH_ENDPOINT
+    os.environ["LANGSMITH_API_KEY"] = settings.LANGSMITH_API_KEY or ""
+    os.environ["LANGSMITH_PROJECT"] = settings.LANGSMITH_PROJECT
+
