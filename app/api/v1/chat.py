@@ -38,6 +38,10 @@ async def chat_test_stream(request: ChatRequest):
             SystemMessage(content="You are a helpful and empathetic AI counselor.")
         ]
         
+        # Add summary if provided
+        if request.history_summary:
+            messages.append(SystemMessage(content=f"Summary of previous conversation: {request.history_summary}"))
+        
         # Add history
         messages.extend(_convert_history(request.chat_history))
         
@@ -80,7 +84,8 @@ async def chat_rag_stream(request: ChatRequest):
             query=request.message,
             chat_history=history,
             plan_level=request.plan_level,
-            use_reasoning=request.use_reasoning
+            use_reasoning=request.use_reasoning,
+            history_summary=request.history_summary
         )
 
         return StreamingResponse(generator, media_type="text/event-stream")

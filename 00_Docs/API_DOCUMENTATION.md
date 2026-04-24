@@ -21,6 +21,7 @@ Streams an AI response grounded in retrieved counseling manuals. Includes automa
     {"role": "human", "content": "Hi"},
     {"role": "ai", "content": "Hello! How can I support you today?"}
   ],
+  "history_summary": "The user previously discussed their career goals and general life stressors.",
   "plan_level": "premium",
   "use_reasoning": null
 }
@@ -28,7 +29,8 @@ Streams an AI response grounded in retrieved counseling manuals. Includes automa
 
 **Parameters:**
 - `message` (string): The current user query.
-- `chat_history` (array): List of previous messages in `{"role": "human/ai", "content": "..."}` format.
+- `chat_history` (array): List of previous messages in `{"role": "human/ai", "content": "..."}` format. Usually the last 5 full messages.
+- `history_summary` (string, optional): A summary of the conversation history prior to the `chat_history`.
 - `plan_level` (enum): `free`, `standard`, or `premium`. Controls access to CBT manuals.
 - `use_reasoning` (boolean, optional): Set to `true` to force Llama 3 70B, `false` for 8B. If `null`, the system routes automatically.
 

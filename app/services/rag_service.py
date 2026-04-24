@@ -22,10 +22,14 @@ class RAGService:
         self.vector_db_service = VectorDBService()
         self.router_service = RouterService()
 
-    def _get_prompts(self) -> tuple:
+    def _get_prompts(self, history_summary: Optional[str] = None) -> tuple:
         """Defines the system prompts for retrieval and answering."""
         
         # Contextualize Question Prompt
+        contextualize_messages = []
+        if history_summary:
+            contextualize_messages.append(("system", f"Summary of previous conversation: {history_summary}"))
+            
         contextualize_q_system_prompt = (
             "Given a chat history and the latest user question "
             "which might reference context in the chat history, "
@@ -33,13 +37,20 @@ class RAGService:
             "without the chat history. Do NOT answer the question, "
             "just reformulate it if needed and otherwise return it as is."
         )
-        contextualize_q_prompt = ChatPromptTemplate.from_messages([
+        
+        contextualize_messages.extend([
             ("system", contextualize_q_system_prompt),
             MessagesPlaceholder("chat_history"),
             ("human", "{input}"),
         ])
+        
+        contextualize_q_prompt = ChatPromptTemplate.from_messages(contextualize_messages)
 
         # QA System Prompt
+        qa_messages = []
+        if history_summary:
+            qa_messages.append(("system", f"Summary of previous conversation: {history_summary}"))
+
         system_prompt = (
             "You are an empathetic and non-judgmental AI counselor. "
             "Use the following pieces of retrieved context from counseling manuals "
@@ -48,11 +59,14 @@ class RAGService:
             "Keep responses concise (max 250 words).\n\n"
             "{context}"
         )
-        qa_prompt = ChatPromptTemplate.from_messages([
+        
+        qa_messages.extend([
             ("system", system_prompt),
             MessagesPlaceholder("chat_history"),
             ("human", "{input}"),
         ])
+        
+        qa_prompt = ChatPromptTemplate.from_messages(qa_messages)
 
         return contextualize_q_prompt, qa_prompt
 
@@ -61,7 +75,8 @@ class RAGService:
         query: str, 
         chat_history: List[BaseMessage],
         plan_level: PlanLevel = PlanLevel.FREE,
-        use_reasoning: Optional[bool] = None
+        use_reasoning: Optional[bool] = None,
+        history_summary: Optional[str] = None
     ) -> AsyncGenerator[str, None]:
         """
         Generates a streaming RAG response.
@@ -90,7 +105,7 @@ class RAGService:
         
         retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
 
-        contextualize_q_prompt, qa_prompt = self._get_prompts()
+        contextualize_q_prompt, qa_prompt = self._get_prompts(history_summary=history_summary)
 
         # Create history-aware retriever
         history_aware_retriever = create_history_aware_retriever(
