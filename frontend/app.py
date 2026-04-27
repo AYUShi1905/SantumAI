@@ -150,32 +150,44 @@ if prompt := st.chat_input("How are you feeling today?"):
                 json=payload, 
                 stream=True
             )
+            response.raise_for_status()
             
-            for line in response.iter_lines():
-                if line:
-                    chunk = line.decode("utf-8")
-                    
-                    # Check if it's the final metadata JSON
-                    # Backend sends f"\n\n{json.dumps(metadata)}"
-                    if chunk.strip().startswith("{") and "total_tokens" in chunk:
-                        try:
-                            metadata = json.loads(chunk.strip())
-                            st.caption(
-                                f"Response completed | "
-                                f"Tokens: {metadata.get('total_tokens', 'N/A')} | "
-                                f"Model: {metadata.get('model_used', 'N/A')} | "
-                                f"Plan: {metadata.get('plan', 'N/A')} | "
-                                f"Status: {metadata.get('status', 'completed')}"
-                            )
-                        except:
-                            # If it's not valid JSON, just treat as text
-                            full_response += chunk
+            # Use a buffer to handle potential metadata split across chunks
+            buffer = ""
+            for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
+                if chunk:
+                    # Check if this chunk or the buffer contains the metadata marker
+                    if "\n\n{" in chunk:
+                        parts = chunk.split("\n\n{", 1)
+                        if parts[0]:
+                            full_response += parts[0]
                             placeholder.markdown(full_response + "▌")
+                        buffer = "{" + parts[1]
+                    elif buffer:
+                        buffer += chunk
                     else:
                         full_response += chunk
                         placeholder.markdown(full_response + "▌")
             
+            # Finalize display
             placeholder.markdown(full_response)
+            
+            # Metadata display
+            if buffer:
+                try:
+                    metadata = json.loads(buffer.strip())
+                    st.caption(
+                        f"Response completed | "
+                        f"Tokens: {metadata.get('total_tokens', 'N/A')} | "
+                        f"Model: {metadata.get('model_used', 'N/A')} | "
+                        f"Plan: {metadata.get('plan', 'N/A')} | "
+                        f"Status: {metadata.get('status', 'completed')}"
+                    )
+                except:
+                    # If it wasn't valid JSON, it might be trailing text
+                    full_response += buffer
+                    placeholder.markdown(full_response)
+            
             st.session_state.messages.append({"role": "ai", "content": full_response})
             
         except Exception as e:
