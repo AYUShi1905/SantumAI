@@ -132,7 +132,8 @@ if prompt := st.chat_input("How are you feeling today?"):
             "message": prompt,
             "chat_history": st.session_state.messages[:-1], # Exclude current message
             "plan_level": plan_level,
-            "use_reasoning": use_reasoning
+            "use_reasoning": use_reasoning,
+            "remaining_tokens": remaining_tokens
         }
         
         try:
@@ -168,3 +169,4 @@ if prompt := st.chat_input("How are you feeling today?"):
             
         except Exception as e:
             st.error(f"Streaming failed: {str(e)}")
+f"Streaming failed: {str(e)}")

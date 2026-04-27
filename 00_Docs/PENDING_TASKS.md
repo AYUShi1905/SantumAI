@@ -28,8 +28,9 @@ This document tracks all approved features and improvements.
 *   [ ] Tests: Add unit/integration tests for summarization and chat.
 
 
-## 4. Observability & Monitoring
-*   **[x] LangSmith Integration:** Configured tracing for LLM and RAG chains.
+## 5. Future Proposals (Planned)
+*   **[ ] Prompt Hardening & Markdown:** Implementation of strict security guardrails and conversational formatting (See `00_Docs/01_Future_Proposals/Prompt_Hardening_and_Markdown_Strategy.md`).
+*   **[ ] VectifyAI PageIndex:** Research into advanced PDF indexing (See `00_Docs/01_Future_Proposals/VectifyAI_PageIndex_Research.md`).
 
 ---
 *Updated: April 24, 2026*

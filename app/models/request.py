@@ -17,6 +17,7 @@ class ChatRequest(BaseModel):
     history_summary: Optional[str] = Field(default=None, description="A summary of older parts of the conversation")
     plan_level: PlanLevel = Field(default=PlanLevel.FREE, description="The user's subscription plan")
     use_reasoning: Optional[bool] = Field(default=None, description="Override the automatic model router if provided")
+    remaining_tokens: int = Field(default=0, description="The number of tokens the user has left in their balance")
 
 class SummarizeRequest(BaseModel):
     chat_history: List[ChatMessage] = Field(..., description="The sequence of messages to summarize")
