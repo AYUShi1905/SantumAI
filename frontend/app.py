@@ -25,6 +25,7 @@ with st.sidebar:
     st.subheader("👤 User Configuration")
     plan_level = st.selectbox("Plan Level", ["free", "standard", "premium"], index=0)
     reasoning_mode = st.radio("Reasoning Mode", ["Auto", "Force Simple (8B)", "Force Reasoning (70B)"], index=0)
+    remaining_tokens = st.slider("Remaining Tokens", min_value=0, max_value=5000, value=1000, step=100)
     
     use_reasoning = None
     if reasoning_mode == "Force Simple (8B)":
@@ -35,13 +36,19 @@ with st.sidebar:
     st.divider()
 
     st.subheader("📄 Ingestion Management")
+    is_cbt_manual = st.checkbox("Is CBT Manual?", value=False, help="Mark this if the document is a core therapeutic manual.")
     uploaded_file = st.file_uploader("Upload PDF or DOCX", type=["pdf", "docx"])
     
     if st.button("Upload File", use_container_width=True) and uploaded_file:
         files = {"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)}
+        data = {"is_cbt_manual": is_cbt_manual}
         try:
             with st.spinner("Processing document..."):
-                response = requests.post(f"{st.session_state.backend_url}/ingest/file", files=files)
+                response = requests.post(
+                    f"{st.session_state.backend_url}/ingest/file", 
+                    files=files,
+                    data=data
+                )
                 if response.status_code == 200:
                     st.success(f"Successfully ingested {uploaded_file.name}")
                 else:
@@ -133,6 +140,7 @@ if prompt := st.chat_input("How are you feeling today?"):
             "chat_history": st.session_state.messages[:-1], # Exclude current message
             "plan_level": plan_level,
             "use_reasoning": use_reasoning,
+            "history_summary": st.session_state.current_summary,
             "remaining_tokens": remaining_tokens
         }
         
@@ -148,16 +156,19 @@ if prompt := st.chat_input("How are you feeling today?"):
                     chunk = line.decode("utf-8")
                     
                     # Check if it's the final metadata JSON
-                    if chunk.startswith("{") and "total_tokens" in chunk:
+                    # Backend sends f"\n\n{json.dumps(metadata)}"
+                    if chunk.strip().startswith("{") and "total_tokens" in chunk:
                         try:
-                            metadata = json.loads(chunk)
+                            metadata = json.loads(chunk.strip())
                             st.caption(
                                 f"Response completed | "
                                 f"Tokens: {metadata.get('total_tokens', 'N/A')} | "
                                 f"Model: {metadata.get('model_used', 'N/A')} | "
-                                f"Plan: {metadata.get('plan', 'N/A')}"
+                                f"Plan: {metadata.get('plan', 'N/A')} | "
+                                f"Status: {metadata.get('status', 'completed')}"
                             )
                         except:
+                            # If it's not valid JSON, just treat as text
                             full_response += chunk
                             placeholder.markdown(full_response + "▌")
                     else:
@@ -169,4 +180,3 @@ if prompt := st.chat_input("How are you feeling today?"):
             
         except Exception as e:
             st.error(f"Streaming failed: {str(e)}")
-f"Streaming failed: {str(e)}")
