@@ -19,6 +19,7 @@ This document tracks all approved features and improvements.
 ## 2. Chat History Summarization (Complete)
 *   **[x] Summarization Service:** Implemented using Llama 3 8B.
 *   **[x] Summarization API:** Endpoint `POST /api/v1/summarize` registered and functional.
+*   **[x] Chat Title Generation:** Endpoint `POST /api/v1/chat/title` implemented for UI session labeling.
 *   **[x] Prompt Engineering:** Professional/empathetic summary prompt implemented.
 
 ## 3. Maintenance & Cleanup (New)

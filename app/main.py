@@ -4,6 +4,7 @@ from core.config import settings
 from api.v1.ingest import router as ingest_router
 from api.v1.summarize import router as summarize_router
 from api.v1.chat import router as chat_router
+from api.v1.chat_title import router as chat_title_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -24,6 +25,7 @@ app.add_middleware(
 app.include_router(ingest_router, prefix="/api/v1")
 app.include_router(summarize_router, prefix="/api/v1")
 app.include_router(chat_router, prefix="/api/v1")
+app.include_router(chat_title_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

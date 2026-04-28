@@ -11,6 +11,10 @@ class SummarizeResponse(BaseModel):
     summary: str
     status: str = "success"
 
+class TitleResponse(BaseModel):
+    title: str
+    status: str = "success"
+
 class ErrorResponse(BaseModel):
     detail: str
     status: str = "error"

@@ -66,3 +66,35 @@ class SummarizationService:
         response = await chain.ainvoke({"chat_history": lc_messages})
         
         return response.content
+
+    async def generate_title(self, chat_history: List[ChatMessage]) -> str:
+        """
+        Generates a 3-5 word professional title for the conversation.
+        """
+        if not chat_history:
+            return "New Conversation"
+
+        lc_messages = self._convert_messages(chat_history)
+
+        system_prompt = (
+            "You are an expert at categorizing counseling sessions. "
+            "Your task is to generate a short, professional, and empathetic title (3-5 words) for the chat history provided. "
+            "The title should reflect the main topic or emotional focus. "
+            "Do NOT use quotes. Do NOT use a period at the end. "
+            "Examples: 'Workplace Anxiety Support', 'Grief and Loss Exploration', 'Coping with Relationship Stress'."
+        )
+
+        human_prompt = "Please generate a title for this conversation history:\n\n{chat_history}"
+
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system_prompt),
+            ("human", human_prompt)
+        ])
+
+        chain = prompt | self.llm
+        
+        response = await chain.ainvoke({"chat_history": lc_messages})
+        
+        # Clean up response in case LLM added quotes or extra text
+        title = response.content.strip().strip('"').strip("'")
+        return title

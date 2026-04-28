@@ -93,7 +93,24 @@ Summarizes a long chat history into a concise, professional counselor's summary.
 ```json
 {
   "summary": "The user discussed job-related anxiety and explored coping mechanisms...",
-  "original_count": 12,
+  "status": "success"
+}
+```
+
+### **POST /chat/title**
+Generates a 3-5 word professional title for the chat session.
+
+**Request Body:**
+```json
+{
+  "chat_history": [...]
+}
+```
+
+**Response:**
+```json
+{
+  "title": "Workplace Anxiety Support",
   "status": "success"
 }
 ```
