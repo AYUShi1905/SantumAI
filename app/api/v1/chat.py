@@ -23,52 +23,6 @@ def _convert_history(chat_history):
             messages.append(AIMessage(content=msg.content))
     return messages
 
-@router.post("/test-stream")
-async def chat_test_stream(request: ChatRequest):
-    """
-    SIMPLE TEST ENDPOINT:
-    Streams a direct response from the LLM (bypasses RAG).
-    Used to verify Groq/LLM integration.
-    """
-    try:
-        llm = llm_service.get_llm(use_reasoning=request.use_reasoning)
-        
-        # Prepare messages
-        messages = [
-            SystemMessage(content="You are a helpful and empathetic AI counselor.")
-        ]
-        
-        # Add summary if provided
-        if request.history_summary:
-            messages.append(SystemMessage(content=f"Summary of previous conversation: {request.history_summary}"))
-        
-        # Add history
-        messages.extend(_convert_history(request.chat_history))
-        
-        # Add current message
-        messages.append(HumanMessage(content=request.message))
-
-        async def generate():
-            full_response = ""
-            async for chunk in llm.astream(messages):
-                if chunk.content:
-                    full_response += chunk.content
-                    yield chunk.content
-            
-            # Final metadata chunk
-            metadata = {
-                "total_tokens": count_tokens(full_response),
-                "status": "completed",
-                "mode": "test_no_rag"
-            }
-            yield f"\n\n{json.dumps(metadata)}"
-
-        return StreamingResponse(generate(), media_type="text/event-stream")
-
-    except Exception as e:
-        logger.error(f"Error in test chat stream: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"LLM Error: {str(e)}")
-
 @router.post("/stream")
 async def chat_rag_stream(request: ChatRequest):
     """
