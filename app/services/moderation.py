@@ -70,3 +70,33 @@ class ModerationService:
             logger.error(f"Moderation Error: {e}")
             # Fail-open for availability (as per proposal standard, or adjust to fail-closed)
             return True, None
+
+    async def create_empathetic_refusal(self, category: str, user_message: str) -> str:
+        """
+        Generates a warm, counselor-like refusal message that maintains boundaries
+        without being robotic.
+        """
+        refusal_system_prompt = (
+            "You are Santum AI, an empathetic and supportive AI counselor. "
+            "A user has sent a message that violates our safety policies. "
+            f"REASON FOR VIOLATION: {category}\n\n"
+            "TASK:\n"
+            "Write a brief (2-3 sentences), warm, and non-judgmental response that:\n"
+            "1. Acknowledges the user's potential emotional state without repeating the harmful content.\n"
+            "2. Gently explains that you cannot engage with that specific topic or tone.\n"
+            "3. Redirects the conversation back to their feelings or a helpful direction.\n"
+            "4. If the category is 'Violence & Physical Harm', ALWAYS include the 988 Suicide & Crisis Lifeline.\n\n"
+            "Keep it professional, empathetic, and firm on boundaries. Do not be robotic."
+        )
+
+        try:
+            prompt = ChatPromptTemplate.from_messages([
+                ("system", refusal_system_prompt),
+                ("human", "User message: {input}")
+            ])
+            chain = prompt | self.llm | StrOutputParser()
+            
+            return await chain.ainvoke({"input": user_message})
+        except Exception as e:
+            logger.error(f"Error generating empathetic refusal: {e}")
+            return "I hear that you're going through something difficult, but I'm unable to discuss that specific topic. I'm here to support you in other ways if you'd like to share how you're feeling."
