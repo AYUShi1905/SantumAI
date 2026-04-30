@@ -101,4 +101,3 @@ class SummarizationService:
         # Clean up response in case LLM added quotes or extra text
         title = response.content.strip().strip('"').strip("'")
         return title
-le
