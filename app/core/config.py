@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str
     GROQ_MODEL_SIMPLE: str = "llama3-8b-8192"
     GROQ_MODEL_REASONING: str = "llama3-70b-8192"
+    GROQ_MODEL_MODERATION: str = "openai/gpt-oss-safeguard-20b"
 
     # App Settings
     PROJECT_NAME: str = "Santum AI RAG Service"
