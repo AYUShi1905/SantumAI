@@ -107,7 +107,7 @@ Retrieved Context:
         
         qa_messages.extend([
             ("system", system_prompt),
-            MessagesPlaceholder("chat_history"),
+            MessagesPlaceholder("chat_history"),AZ
             ("human", "{input}"),
         ])
         
