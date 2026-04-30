@@ -22,7 +22,7 @@ class RAGService:
         self.vector_db_service = VectorDBService()
         self.router_service = RouterService()
 
-    def _get_prompts(self, history_summary: Optional[str] = None, plan_level: PlanLevel = PlanLevel.FREE) -> tuple:
+    def _get_prompts(self, history_summary: Optional[str] = None, plan_level: PlanLevel = PlanLevel.FREE, mood: float = 0.0) -> tuple:
         """Defines the hardened system prompts for retrieval and answering."""
         
         # Contextualize Question Prompt
@@ -51,11 +51,30 @@ class RAGService:
         if history_summary:
             qa_messages.append(("system", f"Summary of previous conversation: {history_summary}"))
 
+        # Mood-Based Tone Instruction
+        if mood < 0:
+            mood_instruction = (
+                "TONE ADJUSTMENT: The user is currently feeling sad or low. "
+                "Be exceptionally empathetic, supportive, and gentle. Use validating language "
+                "to acknowledge their feelings and prioritize emotional safety and warmth."
+            )
+        elif mood > 0:
+            mood_instruction = (
+                "TONE ADJUSTMENT: The user is currently feeling happy or positive. "
+                "Maintain an upbeat, enthusiastic, and celebratory tone. Share in their positivity "
+                "while remaining a professional counselor."
+            )
+        else:
+            mood_instruction = (
+                "TONE ADJUSTMENT: The user's mood is stable. "
+                "Maintain a balanced, professional, and warm conversational tone."
+            )
+
         # Persona & Tone
         persona_section = (
             "You are Santum AI, an empathetic, non-judgmental, and supportive AI counselor. "
             "Your goal is to build a therapeutic alliance through active listening and validation. "
-            "Maintain a warm, conversational, and professional tone."
+            f"{mood_instruction}"
         )
 
         # Plan-Aware Guidance
@@ -122,7 +141,8 @@ Retrieved Context:
         plan_level: PlanLevel = PlanLevel.FREE,
         use_reasoning: Optional[bool] = None,
         history_summary: Optional[str] = None,
-        remaining_tokens: int = 0
+        remaining_tokens: int = 0,
+        mood: float = 0.0
     ) -> AsyncGenerator[str, None]:
         """
         Generates a streaming RAG response with hardened security and token enforcement.
@@ -148,7 +168,7 @@ Retrieved Context:
         limit_reached = False
 
         if is_greeting:
-            _, qa_prompt = self._get_prompts(history_summary=history_summary, plan_level=plan_level)
+            _, qa_prompt = self._get_prompts(history_summary=history_summary, plan_level=plan_level, mood=mood)
             chain = qa_prompt | llm
             
             async for chunk in chain.astream({"input": query, "chat_history": chat_history, "context": "No specific context needed for this greeting."}):
@@ -190,7 +210,7 @@ Retrieved Context:
         
         retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
 
-        contextualize_q_prompt, qa_prompt = self._get_prompts(history_summary=history_summary, plan_level=plan_level)
+        contextualize_q_prompt, qa_prompt = self._get_prompts(history_summary=history_summary, plan_level=plan_level, mood=mood)
 
         # Create history-aware retriever
         history_aware_retriever = create_history_aware_retriever(
