@@ -216,6 +216,3 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 DOUBTS.TXT
-changes.diff
-temp_auto_push.bat
-temp_interactive_push.bat
