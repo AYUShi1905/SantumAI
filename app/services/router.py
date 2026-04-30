@@ -37,7 +37,10 @@ class RouterService:
         Classifies the message to determine if it needs a reasoning model.
         """
         try:
-            result = await self.chain.ainvoke({"input": message})
+            result = await self.chain.ainvoke(
+                {"input": message},
+                config={"run_name": "QueryClassifier"}
+            )
             label = result.strip().lower()
             if "complex" in label:
                 return "complex"

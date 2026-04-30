@@ -230,6 +230,8 @@ Retrieved Context:
             )
         
         retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
+        # Wrap retriever with naming for LangSmith
+        retriever = retriever.with_config({"run_name": "QdrantRetrieval"})
 
         contextualize_q_prompt, qa_prompt = self._get_prompts(
             history_summary=history_summary, 
@@ -250,7 +252,10 @@ Retrieved Context:
         # Create full retrieval chain
         rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
         
-        async for chunk in rag_chain.astream({"input": query, "chat_history": chat_history}):
+        async for chunk in rag_chain.astream(
+            {"input": query, "chat_history": chat_history},
+            config={"run_name": "CounselorRAG"}
+        ):
             if "answer" in chunk:
                 answer_part = chunk["answer"]
                 

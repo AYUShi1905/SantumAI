@@ -93,8 +93,12 @@ class SummarizationService:
 
         chain = prompt | self.llm
         
-        response = await chain.ainvoke({"chat_history": lc_messages})
+        response = await chain.ainvoke(
+            {"chat_history": lc_messages},
+            config={"run_name": "TitleGenerator"}
+        )
         
         # Clean up response in case LLM added quotes or extra text
         title = response.content.strip().strip('"').strip("'")
         return title
+le

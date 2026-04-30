@@ -50,7 +50,10 @@ class ModerationService:
         Returns: (is_safe, category_name)
         """
         try:
-            result = await self.chain.ainvoke({"input": message})
+            result = await self.chain.ainvoke(
+                {"input": message},
+                config={"run_name": "SafetyGuard"}
+            )
             
             # Clean up result in case model adds markdown formatting
             clean_result = result.strip()

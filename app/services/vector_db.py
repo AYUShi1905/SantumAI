@@ -21,6 +21,13 @@ class VectorDBService:
             jina_api_key=settings.JINA_API_KEY,
             model_name=settings.JINA_EMBEDDING_MODEL
         )
+        # Set custom name for LangSmith tracing
+        self.embeddings.model_name = settings.JINA_EMBEDDING_MODEL 
+        # Note: LangChain components often use the 'name' attribute for tracing
+        try:
+            self.embeddings.name = "JinaVectorEmbedder"
+        except Exception:
+            pass
         self.collection_name = settings.COLLECTION_NAME
         self._ensure_collection_exists()
 
