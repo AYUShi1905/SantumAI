@@ -22,7 +22,14 @@ class RAGService:
         self.vector_db_service = VectorDBService()
         self.router_service = RouterService()
 
-    def _get_prompts(self, history_summary: Optional[str] = None, plan_level: PlanLevel = PlanLevel.FREE, mood: float = 0.0) -> tuple:
+    def _get_prompts(
+        self, 
+        history_summary: Optional[str] = None, 
+        plan_level: PlanLevel = PlanLevel.FREE, 
+        happiness: float = 5.0,
+        stress: float = 5.0,
+        energy: float = 5.0
+    ) -> tuple:
         """Defines the hardened system prompts for retrieval and answering."""
         
         # Contextualize Question Prompt
@@ -51,24 +58,30 @@ class RAGService:
         if history_summary:
             qa_messages.append(("system", f"Summary of previous conversation: {history_summary}"))
 
-        # Mood-Based Tone Instruction
-        if mood < 0:
-            mood_instruction = (
-                "TONE ADJUSTMENT: The user is currently feeling sad or low. "
-                "Be exceptionally empathetic, supportive, and gentle. Use validating language "
-                "to acknowledge their feelings and prioritize emotional safety and warmth."
-            )
-        elif mood > 0:
-            mood_instruction = (
-                "TONE ADJUSTMENT: The user is currently feeling happy or positive. "
-                "Maintain an upbeat, enthusiastic, and celebratory tone. Share in their positivity "
-                "while remaining a professional counselor."
-            )
+        # Mood-Based Tone Instruction (Happiness, Stress, Energy)
+        tone_elements = []
+        
+        # Happiness
+        if happiness <= 3:
+            tone_elements.append("The user is feeling low; prioritize deep empathy, validation, and supportive listening.")
+        elif happiness >= 8:
+            tone_elements.append("The user is in a positive mood; be upbeat, celebratory, and share in their positivity.")
         else:
-            mood_instruction = (
-                "TONE ADJUSTMENT: The user's mood is stable. "
-                "Maintain a balanced, professional, and warm conversational tone."
-            )
+            tone_elements.append("The user's mood is stable; maintain a balanced and warm conversational tone.")
+            
+        # Stress
+        if stress >= 8:
+            tone_elements.append("The user is highly stressed; use a soothing, grounding, and exceptionally calm tone. Keep responses clear and avoid overwhelming detail.")
+        elif stress <= 3:
+            tone_elements.append("The user is relaxed; you can be more direct and casually professional.")
+            
+        # Energy
+        if energy <= 3:
+            tone_elements.append("The user has low energy; be patient, use simple language, and provide gentle encouragement without being demanding.")
+        elif energy >= 8:
+            tone_elements.append("The user has high energy; be engaging, proactive, and use more dynamic, motivating language.")
+
+        mood_instruction = "TONE ADJUSTMENT: " + " ".join(tone_elements)
 
         # Persona & Tone
         persona_section = (
@@ -142,7 +155,9 @@ Retrieved Context:
         use_reasoning: Optional[bool] = None,
         history_summary: Optional[str] = None,
         remaining_tokens: int = 0,
-        mood: float = 0.0
+        happiness: float = 5.0,
+        stress: float = 5.0,
+        energy: float = 5.0
     ) -> AsyncGenerator[str, None]:
         """
         Generates a streaming RAG response with hardened security and token enforcement.
@@ -168,7 +183,13 @@ Retrieved Context:
         limit_reached = False
 
         if is_greeting:
-            _, qa_prompt = self._get_prompts(history_summary=history_summary, plan_level=plan_level, mood=mood)
+            _, qa_prompt = self._get_prompts(
+                history_summary=history_summary, 
+                plan_level=plan_level, 
+                happiness=happiness,
+                stress=stress,
+                energy=energy
+            )
             chain = qa_prompt | llm
             
             async for chunk in chain.astream({"input": query, "chat_history": chat_history, "context": "No specific context needed for this greeting."}):
@@ -210,7 +231,13 @@ Retrieved Context:
         
         retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
 
-        contextualize_q_prompt, qa_prompt = self._get_prompts(history_summary=history_summary, plan_level=plan_level, mood=mood)
+        contextualize_q_prompt, qa_prompt = self._get_prompts(
+            history_summary=history_summary, 
+            plan_level=plan_level, 
+            happiness=happiness,
+            stress=stress,
+            energy=energy
+        )
 
         # Create history-aware retriever
         history_aware_retriever = create_history_aware_retriever(

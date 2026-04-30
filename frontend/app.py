@@ -26,7 +26,9 @@ with st.sidebar:
     plan_level = st.selectbox("Plan Level", ["free", "standard", "premium"], index=0)
     reasoning_mode = st.radio("Reasoning Mode", ["Auto", "Force Simple (8B)", "Force Reasoning (70B)"], index=0)
     remaining_tokens = st.slider("Remaining Tokens", min_value=0, max_value=5000, value=1000, step=100)
-    mood = st.slider("User Mood (-1: Sad, 0: Neutral, 1: Happy)", min_value=-1.0, max_value=1.0, value=0.0, step=0.1)
+    happiness = st.slider("😃 Happiness", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
+    stress = st.slider("😰 Stress", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
+    energy = st.slider("⚡ Energy", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
     
     use_reasoning = None
     if reasoning_mode == "Force Simple (8B)":
@@ -143,7 +145,9 @@ if prompt := st.chat_input("How are you feeling today?"):
             "use_reasoning": use_reasoning,
             "history_summary": st.session_state.current_summary,
             "remaining_tokens": remaining_tokens,
-            "mood": mood
+            "happiness": happiness,
+            "stress": stress,
+            "energy": energy
         }
         
         try:

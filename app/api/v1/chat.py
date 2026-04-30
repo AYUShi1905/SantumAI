@@ -59,7 +59,9 @@ async def chat_rag_stream(request: ChatRequest):
             use_reasoning=request.use_reasoning,
             history_summary=request.history_summary,
             remaining_tokens=request.remaining_tokens,
-            mood=request.mood
+            happiness=request.happiness,
+            stress=request.stress,
+            energy=request.energy
         )
 
         return StreamingResponse(generator, media_type="text/event-stream")

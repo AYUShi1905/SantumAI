@@ -13,7 +13,7 @@ This document tracks all approved features and improvements.
 *   **[x] Production RAG Endpoint:** `/chat/stream` implemented with automated model switching.
 *   **[x] Multi-Model Strategy:** Implemented `RouterService` for 8B vs 70B switching.
 *   **[x] Plan-Aware RAG:** Content filtering based on subscription level (CBT vs non-CBT).
-*   **[x] Mood-Aware Response:** Dynamic tone adjustment (Sad/Happy/Stable) based on a numeric mood parameter (-1 to 1).
+*   **[x] Mood-Aware Response:** Multi-dimensional EQ (Happiness, Stress, Energy) on a 1-10 scale.
 *   **[ ] Tiktoken Integration:** Implement precise token counting in `app/utils/tokens.py`.
 *   **[x] Safety Prompt Engineering:** Refined system prompt for empathetic counseling, situational crisis triggers, and clinical boundaries.
 
