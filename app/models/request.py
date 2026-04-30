@@ -18,9 +18,9 @@ class ChatRequest(BaseModel):
     plan_level: PlanLevel = Field(default=PlanLevel.FREE, description="The user's subscription plan")
     use_reasoning: Optional[bool] = Field(default=None, description="Override the automatic model router if provided")
     remaining_tokens: int = Field(default=0, description="The number of tokens the user has left in their balance")
-    happiness: float = Field(default=5.0, ge=1.0, le=10.0, description="User happiness (1-10)")
-    stress: float = Field(default=5.0, ge=1.0, le=10.0, description="User stress level (1-10)")
-    energy: float = Field(default=5.0, ge=1.0, le=10.0, description="User energy level (1-10)")
+    happiness: float = Field(default=5.0, ge=0.0, le=10.0, description="User happiness (0-10)")
+    stress: float = Field(default=5.0, ge=0.0, le=10.0, description="User stress level (0-10)")
+    energy: float = Field(default=5.0, ge=0.0, le=10.0, description="User energy level (0-10)")
 
 class SummarizeRequest(BaseModel):
     chat_history: List[ChatMessage] = Field(..., description="The sequence of messages to summarize")
