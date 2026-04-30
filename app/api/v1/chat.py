@@ -7,11 +7,15 @@ from utils.tokens import count_tokens
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 import logging
 import json
+from services.moderation import ModerationService
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
 llm_service = LLMProviderService()
 rag_service = RAGService()
+moderation_service = ModerationService()
+
+SAFETY_REFUSAL_MESSAGE = "I'm sorry, but I cannot fulfill this request as it violates my safety policies regarding helpful and respectful conversation."
 
 def _convert_history(chat_history):
     """Helper to convert ChatMessage models to LangChain messages."""
@@ -33,7 +37,6 @@ async def chat_rag_stream(request: ChatRequest):
     try:
         # 1. Moderation Check (Abuse Detection Layer)
         is_safe, category = await moderation_service.check_message(request.message)
-        
         if not is_safe:
             logger.warning(f"Moderation Filter Triggered: Category {category}")
             
