@@ -1,3 +1,4 @@
+import asyncio
 from typing import AsyncGenerator, List, Dict, Any, Optional
 import json
 from langchain_classic.chains import create_history_aware_retriever, create_retrieval_chain
@@ -9,6 +10,7 @@ from qdrant_client.http import models as rest
 from services.llm_provider import LLMProviderService
 from services.vector_db import VectorDBService
 from services.router import RouterService
+from services.moderation import ModerationService
 from models.request import PlanLevel
 from utils.tokens import count_tokens
 
@@ -21,6 +23,7 @@ class RAGService:
         self.llm_service = LLMProviderService()
         self.vector_db_service = VectorDBService()
         self.router_service = RouterService()
+        self.moderation_service = ModerationService()
 
     def _get_prompts(
         self, 
@@ -29,30 +32,9 @@ class RAGService:
         happiness: float = 5.0,
         stress: float = 5.0,
         energy: float = 5.0
-    ) -> tuple:
+    ) -> ChatPromptTemplate:
         """Defines the hardened system prompts for retrieval and answering."""
         
-        # Contextualize Question Prompt
-        contextualize_messages = []
-        if history_summary:
-            contextualize_messages.append(("system", f"Summary of previous conversation: {history_summary}"))
-            
-        contextualize_q_system_prompt = (
-            "Given a chat history and the latest user question "
-            "which might reference context in the chat history, "
-            "formulate a standalone question which can be understood "
-            "without the chat history. Do NOT answer the question, "
-            "just reformulate it if needed and otherwise return it as is."
-        )
-        
-        contextualize_messages.extend([
-            ("system", contextualize_q_system_prompt),
-            MessagesPlaceholder("chat_history"),
-            ("human", "{input}"),
-        ])
-        
-        contextualize_q_prompt = ChatPromptTemplate.from_messages(contextualize_messages)
-
         # Hardened QA System Prompt
         qa_messages = []
         if history_summary:
@@ -145,7 +127,7 @@ Retrieved Context:
         
         qa_prompt = ChatPromptTemplate.from_messages(qa_messages)
 
-        return contextualize_q_prompt, qa_prompt
+        return qa_prompt
 
     async def get_streaming_response(
         self, 
@@ -161,6 +143,7 @@ Retrieved Context:
     ) -> AsyncGenerator[str, None]:
         """
         Generates a streaming RAG response with hardened security and token enforcement.
+        Utilizes asyncio.gather for parallel orchestration (Phase 2).
         """
         # 0. Pre-check for tokens
         if remaining_tokens <= 0:
@@ -168,22 +151,71 @@ Retrieved Context:
             yield f"\n\n{json.dumps({'total_tokens': 0, 'status': 'insufficient_balance'})}"
             return
 
-        # 1. Automatic Routing
+        # 1. Parallel Orchestration (Phase 2)
+        # We fire Moderation, Reasoning (Router/Rephraser), and Retrieval in parallel.
+        
+        # Define retrieval task
+        vectorstore = self.vector_db_service.get_vectorstore()
+        search_kwargs = {"k": 5}
+        if plan_level != PlanLevel.PREMIUM:
+            search_kwargs["filter"] = rest.Filter(
+                must=[
+                    rest.FieldCondition(
+                        key="metadata.is_cbt_manual",
+                        match=rest.MatchValue(value=False)
+                    )
+                ]
+            )
+        retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
+
+        # Execute parallel tasks
+        tasks = [
+            self.moderation_service.check_message(query),
+            self.router_service.process_query(query, chat_history, history_summary),
+            retriever.ainvoke(query) # Speculative search
+        ]
+        
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Unpack results and handle potential exceptions
+        moderation_result = results[0]
+        router_result = results[1]
+        retrieval_result = results[2]
+        
+        # 2. Safety Check (High Priority)
+        if not isinstance(moderation_result, Exception):
+            is_safe, category = moderation_result
+            if not is_safe:
+                refusal_message = await self.moderation_service.create_empathetic_refusal(category, query)
+                yield refusal_message
+                yield f"\n\n{json.dumps({'total_tokens': 0, 'status': 'safety_violation', 'category': category})}"
+                return
+        
+        # 3. Reasoning & Routing Result
+        if isinstance(router_result, Exception):
+            classification, standalone_query = "simple", query
+        else:
+            classification, standalone_query = router_result
+            
         if use_reasoning is None:
-            classification = await self.router_service.classify(query)
             use_reasoning = (classification == "complex")
         
+        # 4. Retrieval Result & Refinement
+        if isinstance(retrieval_result, Exception):
+            docs = []
+        else:
+            docs = retrieval_result
+
+        # 5. HEURISTIC: Skip if greeting
+        is_greeting = (classification == "simple") and not chat_history
+        
         llm = self.llm_service.get_llm(use_reasoning=use_reasoning)
-        
-        # 2. HEURISTIC: Skip retrieval for very short queries (greetings)
-        is_greeting = len(query.strip().split()) <= 2 and not chat_history
-        
         full_response = ""
         current_tokens = 0
         limit_reached = False
 
         if is_greeting:
-            _, qa_prompt = self._get_prompts(
+            qa_prompt = self._get_prompts(
                 history_summary=history_summary, 
                 plan_level=plan_level, 
                 happiness=happiness,
@@ -194,7 +226,6 @@ Retrieved Context:
             
             async for chunk in chain.astream({"input": query, "chat_history": chat_history, "context": "No specific context needed for this greeting."}):
                 if chunk.content:
-                    # Token check
                     chunk_tokens = count_tokens(chunk.content)
                     if (current_tokens + chunk_tokens) > remaining_tokens:
                         yield "\n\n⚠️ **Token limit reached.** Response truncated."
@@ -215,25 +246,8 @@ Retrieved Context:
             yield f"\n\n{json.dumps(metadata)}"
             return
 
-        vectorstore = self.vector_db_service.get_vectorstore()
-        
-        # 3. Plan-based Filtering
-        search_kwargs = {"k": 5}
-        if plan_level != PlanLevel.PREMIUM:
-            search_kwargs["filter"] = rest.Filter(
-                must=[
-                    rest.FieldCondition(
-                        key="metadata.is_cbt_manual",
-                        match=rest.MatchValue(value=False)
-                    )
-                ]
-            )
-        
-        retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
-        # Wrap retriever with naming for LangSmith
-        retriever = retriever.with_config({"run_name": "QdrantRetrieval"})
-
-        contextualize_q_prompt, qa_prompt = self._get_prompts(
+        # 6. Final QA Generation
+        qa_prompt = self._get_prompts(
             history_summary=history_summary, 
             plan_level=plan_level, 
             happiness=happiness,
@@ -241,25 +255,14 @@ Retrieved Context:
             energy=energy
         )
 
-        # Create history-aware retriever
-        history_aware_retriever = create_history_aware_retriever(
-            llm, retriever, contextualize_q_prompt
-        )
-
-        # Create QA chain
         question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
 
-        # Create full retrieval chain
-        rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
-        
-        async for chunk in rag_chain.astream(
-            {"input": query, "chat_history": chat_history},
+        async for chunk in question_answer_chain.astream(
+            {"input": query, "chat_history": chat_history, "context": docs},
             config={"run_name": "CounselorRAG"}
         ):
-            if "answer" in chunk:
-                answer_part = chunk["answer"]
-                
-                # Token check
+            if chunk:
+                answer_part = chunk
                 chunk_tokens = count_tokens(answer_part)
                 if (current_tokens + chunk_tokens) > remaining_tokens:
                     yield "\n\n⚠️ **Token limit reached.** Response truncated."

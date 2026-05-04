@@ -30,32 +30,14 @@ async def chat_rag_stream(request: ChatRequest):
     """
     PRODUCTION RAG ENDPOINT:
     Streams a response grounded in counseling manuals retrieved from Qdrant.
-    Includes an Abuse Detection Layer (Moderation) to filter unsafe content.
+    Parallelized orchestration (Moderation, Routing, Retrieval) handled in RAGService.
     """
     try:
-        # 1. Moderation Check (Abuse Detection Layer)
-        is_safe, category = await moderation_service.check_message(request.message)
-        if not is_safe:
-            logger.warning(f"Moderation Filter Triggered: Category {category}")
-            
-            # Generate a dynamic, empathetic refusal message
-            refusal_message = await moderation_service.create_empathetic_refusal(category, request.message)
-
-            async def safety_generator():
-                yield refusal_message
-                metadata = {
-                    "total_tokens": 0,
-                    "status": "safety_violation",
-                    "category": category
-                }
-                yield f"\n\n{json.dumps(metadata)}"
-            
-            return StreamingResponse(safety_generator(), media_type="text/event-stream")
-
-        # 2. Convert history
+        # 1. Convert history
         history = _convert_history(request.chat_history)
         
-        # Get streaming generator from RAG service
+        # 2. Get streaming generator from RAG service
+        # Parallelism (Moderation, Routing, Retrieval) is managed inside this call
         generator = rag_service.get_streaming_response(
             query=request.message,
             chat_history=history,

@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     # Google Gemini Embeddings
     GOOGLE_API_KEY: str
-    GOOGLE_EMBEDDING_MODEL: str = "models/gemini-embedding-001"
+    GOOGLE_EMBEDDING_MODEL: str = "gemini-embedding-001"
 
     # Groq LLMs
     GROQ_API_KEY: str
