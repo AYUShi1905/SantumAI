@@ -3,6 +3,7 @@ import re
 import random
 from typing import AsyncGenerator, List, Dict, Any, Optional
 import json
+from fastapi import logger
 from langchain_classic.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -324,7 +325,7 @@ Retrieved Context:
         limit_reached = False
 
         async for chunk in question_answer_chain.astream(
-            {"input": standalone_query, "chat_history": chat_history, "context": docs},
+            {"input": query, "chat_history": chat_history, "context": docs},
             config={"run_name": "CounselorRAG"}
         ):
             if chunk:
