@@ -86,6 +86,7 @@ sequenceDiagram
 
 ## 3. Implementation Status
 - [x] Gemini Embedding Migration (Reduced from 20s to 0.4s)
-- [ ] Refactor API for `asyncio.gather` concurrency
-- [ ] Implement Parallel Router/Moderation logic
-- [ ] Move Rephrasing logic into parallel stream
+- [x] Refactor API for `asyncio.create_task` concurrency and Early Exits
+- [x] Implement Parallel Router/Moderation logic
+- [x] Move Rephrasing logic into parallel stream and integrate with final generation
+- [x] Implement cancellation of redundant background tasks (e.g., cancelling retrieval on greeting/safety failure)

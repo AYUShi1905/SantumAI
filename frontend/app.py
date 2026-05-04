@@ -151,6 +151,10 @@ if prompt := st.chat_input("How are you feeling today?"):
         }
         
         try:
+            import time
+            start_time = time.time()
+            ttft = None
+            
             response = requests.post(
                 f"{st.session_state.backend_url}/chat/stream", 
                 json=payload, 
@@ -162,6 +166,10 @@ if prompt := st.chat_input("How are you feeling today?"):
             buffer = ""
             for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
                 if chunk:
+                    # Calculate TTFT on the first chunk of text
+                    if ttft is None:
+                        ttft = time.time() - start_time
+                        
                     # Check if this chunk or the buffer contains the metadata marker
                     if "\n\n{" in chunk:
                         parts = chunk.split("\n\n{", 1)
@@ -182,11 +190,13 @@ if prompt := st.chat_input("How are you feeling today?"):
             if buffer:
                 try:
                     metadata = json.loads(buffer.strip())
+                    ttft_str = f"{ttft:.2f}s" if ttft is not None else "N/A"
                     st.caption(
                         f"Response completed | "
+                        f"TTFT: {ttft_str} | "
                         f"Tokens: {metadata.get('total_tokens', 'N/A')} | "
                         f"Model: {metadata.get('model_used', 'N/A')} | "
-                        f"Plan: {metadata.get('plan', 'N/A')} | "
+                        f"Mode: {metadata.get('mode', 'N/A')} | "
                         f"Status: {metadata.get('status', 'completed')}"
                     )
                 except:

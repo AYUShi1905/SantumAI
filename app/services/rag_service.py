@@ -209,10 +209,12 @@ Retrieved Context:
                 yield chunk
             return
 
-        # 1. Parallel Orchestration (Phase 2)
-        # We fire Moderation, Reasoning (Router/Rephraser), and Retrieval in parallel.
+        # 1. Parallel Orchestration (Phase 2 - Optimized)
+        # Fire all tasks in parallel as background tasks
+        mod_task = asyncio.create_task(self.moderation_service.check_message(query))
+        router_task = asyncio.create_task(self.router_service.process_query(query, chat_history, history_summary))
         
-        # Define retrieval task
+        # Define and fire retrieval task (Speculative Search)
         vectorstore = self.vector_db_service.get_vectorstore()
         search_kwargs = {"k": 5}
         if plan_level != PlanLevel.PREMIUM:
@@ -225,54 +227,43 @@ Retrieved Context:
                 ]
             )
         retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
+        retrieval_task = asyncio.create_task(retriever.ainvoke(query))
 
-        # Execute parallel tasks
-        tasks = [
-            self.moderation_service.check_message(query),
-            self.router_service.process_query(query, chat_history, history_summary),
-            retriever.ainvoke(query) # Speculative search
-        ]
-        
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        
-        # Unpack results and handle potential exceptions
-        moderation_result = results[0]
-        router_result = results[1]
-        retrieval_result = results[2]
-        
-        # 2. Safety Check (High Priority)
-        if not isinstance(moderation_result, Exception):
-            is_safe, category = moderation_result
-            if not is_safe:
-                refusal_message = await self.moderation_service.create_empathetic_refusal(category, query)
-                yield refusal_message
-                yield f"\n\n{json.dumps({'total_tokens': 0, 'status': 'safety_violation', 'category': category})}"
-                return
+        # 2. Wait for Moderation & Routing (Usually faster than retrieval/embedding)
+        try:
+            # We wait for the fastest "check" components first to allow early exits
+            # results = await asyncio.gather(mod_task, router_task, return_exceptions=True)
+            # Unpack results
+            moderation_result = await mod_task
+            router_result = await router_task
+        except Exception as e:
+            logger.error(f"Error in parallel orchestration tasks: {e}")
+            moderation_result = (True, None) # Fail-open
+            router_result = ("simple", query)
+
+        # 2.1 Safety Check (Critical Priority)
+        is_safe, category = moderation_result
+        if not is_safe:
+            # Cancel retrieval if it's still running
+            retrieval_task.cancel()
+            refusal_message = await self.moderation_service.create_empathetic_refusal(category, query)
+            yield refusal_message
+            yield f"\n\n{json.dumps({'total_tokens': 0, 'status': 'safety_violation', 'category': category})}"
+            return
         
         # 3. Reasoning & Routing Result
-        if isinstance(router_result, Exception):
-            classification, standalone_query = "simple", query
-        else:
-            classification, standalone_query = router_result
-            
+        classification, standalone_query = router_result
         if use_reasoning is None:
             use_reasoning = (classification == "complex")
         
-        # 4. Retrieval Result & Refinement
-        if isinstance(retrieval_result, Exception):
-            docs = []
-        else:
-            docs = retrieval_result
-
-        # 5. HEURISTIC: Skip if greeting
+        # 4. HEURISTIC: Skip retrieval if greeting or simple first-message
         is_greeting = (classification == "simple") and not chat_history
         
-        llm = self.llm_service.get_llm(use_reasoning=use_reasoning)
-        full_response = ""
-        current_tokens = 0
-        limit_reached = False
-
         if is_greeting:
+            # Cancel retrieval - we don't need it for greetings
+            retrieval_task.cancel()
+            
+            llm = self.llm_service.get_llm(use_reasoning=use_reasoning)
             qa_prompt = self._get_prompts(
                 history_summary=history_summary, 
                 plan_level=plan_level, 
@@ -282,6 +273,10 @@ Retrieved Context:
             )
             chain = qa_prompt | llm
             
+            full_response = ""
+            current_tokens = 0
+            limit_reached = False
+
             async for chunk in chain.astream({"input": query, "chat_history": chat_history, "context": "No specific context needed for this greeting."}):
                 if chunk.content:
                     chunk_tokens = count_tokens(chunk.content)
@@ -304,7 +299,16 @@ Retrieved Context:
             yield f"\n\n{json.dumps(metadata)}"
             return
 
-        # 6. Final QA Generation
+        # 5. Wait for Retrieval (if not already finished)
+        try:
+            docs = await retrieval_task
+        except Exception as e:
+            logger.error(f"Retrieval Error: {e}")
+            docs = []
+
+        # 6. Final QA Generation (Phase 3)
+        # IMPORTANT: We use 'standalone_query' here to ensure the LLM has full context
+        llm = self.llm_service.get_llm(use_reasoning=use_reasoning)
         qa_prompt = self._get_prompts(
             history_summary=history_summary, 
             plan_level=plan_level, 
@@ -315,8 +319,12 @@ Retrieved Context:
 
         question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
 
+        full_response = ""
+        current_tokens = 0
+        limit_reached = False
+
         async for chunk in question_answer_chain.astream(
-            {"input": query, "chat_history": chat_history, "context": docs},
+            {"input": standalone_query, "chat_history": chat_history, "context": docs},
             config={"run_name": "CounselorRAG"}
         ):
             if chunk:
@@ -336,6 +344,7 @@ Retrieved Context:
             "total_tokens": current_tokens,
             "status": "truncated" if limit_reached else "completed",
             "model_used": "reasoning" if use_reasoning else "simple",
-            "plan": plan_level
+            "plan": plan_level,
+            "mode": "rag_complex"
         }
         yield f"\n\n{json.dumps(metadata)}"

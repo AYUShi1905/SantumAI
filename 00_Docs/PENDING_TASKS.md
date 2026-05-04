@@ -27,9 +27,10 @@ This document tracks all approved features and improvements.
 *   [x] **RAG Hallucination Fix:** Implemented greeting heuristic and prompt robustness to prevent irrelevant context usage for simple messages.
 *   [x] **Embedding Migration:** Switched from Jina HTTP API (20s latency) to Google Gemini `gemini-embedding-001` (Fast/Free tier).
 *   [x] **Latency Optimization (Parallelism):** 
-    *   [x] Refactor API to use `asyncio.gather` for concurrent Moderation, Routing, and Speculative Retrieval.
+    *   [x] Refactor API to use background tasks (`asyncio.create_task`) for true concurrent Moderation, Routing, and Speculative Retrieval with **Early Exits**.
     *   [x] **Router/Rephraser Merger:** Merge classification and rephrasing into a single LLM call to save tokens and time.
-    *   [x] **Heuristic Bypass:** Implement fast Python-based greeting detection to skip RAG for introductory messages (Sub-100ms goal).
+    *   [x] **Heuristic Bypass:** Implement fast Python-based greeting detection and early-exit logic to skip retrieval for introductory messages (Sub-100ms goal).
+    *   [x] **Standalone Query Integration:** Fixed logic to ensure the rephrased query from the Router is actually used in the final LLM generation.
 *   [x] Models Cleanup: De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
 *   [x] Streamlit Frontend: Implemented a full-featured testing UI in `frontend/app.py`.
 *   [ ] Tests: Add unit/integration tests for summarization and chat.
