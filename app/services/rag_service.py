@@ -1,4 +1,6 @@
 import asyncio
+import re
+import random
 from typing import AsyncGenerator, List, Dict, Any, Optional
 import json
 from langchain_classic.chains import create_history_aware_retriever, create_retrieval_chain
@@ -14,6 +16,21 @@ from services.moderation import ModerationService
 from models.request import PlanLevel
 from utils.tokens import count_tokens
 
+# Heuristic patterns for pure greetings
+GREETING_PATTERNS = [
+    r"^(hi|hello|hey|yo|hi there|hello there)(\!|\.|\?)*$",
+    r"^(good\s+(morning|afternoon|evening))(\!|\.|\?)*$",
+    r"^(is\s+anyone\s+(there|around))(\!|\.|\?)*$",
+    r"^(hi|hello)\s+santum(\s+ai)?(\!|\.|\?)*$"
+]
+
+GREETING_RESPONSES = [
+    "Hello! I'm Santum AI, your supportive counselor. I'm here to listen and support you. How are you feeling today?",
+    "Hi there! It's good to see you. I'm here whenever you're ready to talk. What's on your mind?",
+    "Hello! I'm here and ready to support you in any way I can. How has your day been so far?",
+    "Hi! I'm Santum AI. I'm here to provide a safe space for you. How can I help you today?"
+]
+
 class RAGService:
     """
     Orchestration service for the Retrieval-Augmented Generation pipeline.
@@ -24,6 +41,41 @@ class RAGService:
         self.vector_db_service = VectorDBService()
         self.router_service = RouterService()
         self.moderation_service = ModerationService()
+
+    def _is_pure_greeting(self, text: str) -> bool:
+        """Checks if the query is a simple greeting that can be fast-tracked."""
+        normalized = text.lower().strip()
+        # If more than 4 words, it likely contains emotional context or a specific query
+        if len(normalized.split()) > 4:
+            return False
+            
+        for pattern in GREETING_PATTERNS:
+            if re.match(pattern, normalized):
+                return True
+        return False
+
+    async def _handle_heuristic_greeting(self, plan_level: PlanLevel) -> AsyncGenerator[str, None]:
+        """Streams a pre-defined empathetic greeting response."""
+        response = random.choice(GREETING_RESPONSES)
+        
+        # Simulate slight streaming for natural feel, though nearly instant
+        words = response.split()
+        current_tokens = 0
+        for i, word in enumerate(words):
+            part = word + (" " if i < len(words) - 1 else "")
+            current_tokens += count_tokens(part)
+            yield part
+            # No real need to sleep, but ensures it's treated as a stream
+            await asyncio.sleep(0.01) 
+            
+        metadata = {
+            "total_tokens": current_tokens,
+            "status": "completed",
+            "model_used": "heuristic",
+            "plan": plan_level,
+            "mode": "fast_track"
+        }
+        yield f"\n\n{json.dumps(metadata)}"
 
     def _get_prompts(
         self, 
@@ -149,6 +201,12 @@ Retrieved Context:
         if remaining_tokens <= 0:
             yield "❌ You have run out of tokens. Please top up your balance to continue the conversation."
             yield f"\n\n{json.dumps({'total_tokens': 0, 'status': 'insufficient_balance'})}"
+            return
+
+        # 0.1 HEURISTIC FAST-TRACK: Bypass for pure greetings (Sub-100ms goal)
+        if self._is_pure_greeting(query) and not chat_history:
+            async for chunk in self._handle_heuristic_greeting(plan_level):
+                yield chunk
             return
 
         # 1. Parallel Orchestration (Phase 2)
