@@ -14,7 +14,7 @@ This document tracks all approved features and improvements.
 *   **[x] Multi-Model Strategy:** Implemented `RouterService` for 8B vs 70B switching.
 *   **[x] Plan-Aware RAG:** Content filtering based on subscription level (CBT vs non-CBT).
 *   **[x] Mood-Aware Response:** Multi-dimensional EQ (Happiness, Stress, Energy) on a 1-10 scale.
-*   **[ ] Tiktoken Integration:** Implement precise token counting in `app/utils/tokens.py`.
+*   **[x] Tiktoken Integration:** Implemented precise token counting in `app/utils/tokens.py`.
 *   **[x] Safety Prompt Engineering:** Refined system prompt for empathetic counseling, situational crisis triggers, and clinical boundaries.
 
 ## 2. Chat History Summarization (Complete)
@@ -26,7 +26,10 @@ This document tracks all approved features and improvements.
 ## 3. Maintenance & Cleanup (New)
 *   [x] **RAG Hallucination Fix:** Implemented greeting heuristic and prompt robustness to prevent irrelevant context usage for simple messages.
 *   [x] **Embedding Migration:** Switched from Jina HTTP API (20s latency) to Google Gemini `text-embedding-004` (Fast/Free tier).
-*   [ ] **Latency Optimization (Parallelism):** Refactor the RAG pipeline to run Moderation, Routing, and Embedding in parallel using `asyncio.gather` to achieve sub-second response times.
+*   [ ] **Latency Optimization (Parallelism):** 
+    *   [ ] Refactor API to use `asyncio.gather` for concurrent Moderation, Routing, and Embedding.
+    *   [ ] **Router/Rephraser Merger:** Merge classification and rephrasing into a single LLM call to save tokens and time.
+    *   [ ] **Heuristic Bypass:** Implement fast Python-based greeting detection to skip RAG for introductory messages.
 *   [x] Models Cleanup: De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
 *   [x] Streamlit Frontend: Implemented a full-featured testing UI in `frontend/app.py`.
 *   [ ] Tests: Add unit/integration tests for summarization and chat.
