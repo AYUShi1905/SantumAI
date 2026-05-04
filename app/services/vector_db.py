@@ -1,5 +1,5 @@
 from langchain_qdrant import QdrantVectorStore
-from langchain_community.embeddings import JinaEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as rest
 from core.config import settings
@@ -9,7 +9,7 @@ from langchain_core.documents import Document
 class VectorDBService:
     """
     Service for interacting with Qdrant Vector Database.
-    Uses Jina v2-base-en for generating embeddings.
+    Uses Google Gemini (text-embedding-004) for generating embeddings.
     """
 
     def __init__(self):
@@ -17,15 +17,14 @@ class VectorDBService:
             url=settings.QDRANT_URL,
             api_key=settings.QDRANT_API_KEY
         )
-        self.embeddings = JinaEmbeddings(
-            jina_api_key=settings.JINA_API_KEY,
-            model_name=settings.JINA_EMBEDDING_MODEL
+        self.embeddings = GoogleGenerativeAIEmbeddings(
+            model=settings.GOOGLE_EMBEDDING_MODEL,
+            google_api_key=settings.GOOGLE_API_KEY,
+            task_type="retrieval_document"
         )
         # Set custom name for LangSmith tracing
-        self.embeddings.model_name = settings.JINA_EMBEDDING_MODEL 
-        # Note: LangChain components often use the 'name' attribute for tracing
         try:
-            self.embeddings.name = "JinaVectorEmbedder"
+            self.embeddings.name = "GoogleGeminiEmbedder"
         except Exception:
             pass
         self.collection_name = settings.COLLECTION_NAME
@@ -38,7 +37,7 @@ class VectorDBService:
             exists = any(c.name == self.collection_name for c in collections)
             
             if not exists:
-                # Jina v2-base-en uses 768 dimensions
+                # Google text-embedding-004 uses 768 dimensions by default
                 self.client.create_collection(
                     collection_name=self.collection_name,
                     vectors_config=rest.VectorParams(

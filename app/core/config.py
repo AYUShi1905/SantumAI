@@ -7,10 +7,14 @@ class Settings(BaseSettings):
     QDRANT_URL: str
     COLLECTION_NAME: str
 
-    # Jina Cloud Embeddings
-    JINA_API_KEY: str
+    # Jina Cloud Embeddings (Deprecated)
+    JINA_API_KEY: Optional[str] = None
     JINA_EMBEDDING_URL: str = "https://api.jina.ai/v1/embeddings"
     JINA_EMBEDDING_MODEL: str = "jina-embeddings-v2-base-en"
+
+    # Google Gemini Embeddings
+    GOOGLE_API_KEY: str
+    GOOGLE_EMBEDDING_MODEL: str = "models/text-embedding-004"
 
     # Groq LLMs
     GROQ_API_KEY: str

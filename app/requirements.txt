@@ -6,6 +6,7 @@ langchain-community
 langchain-groq
 langchain-qdrant
 qdrant-client
+langchain-google-genai
 pymupdf
 pydantic-settings
 python-dotenv

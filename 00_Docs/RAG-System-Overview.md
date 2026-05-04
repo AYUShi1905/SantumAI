@@ -9,14 +9,14 @@ A high-performance, scalable Python-based RAG (Retrieval-Augmented Generation) m
 | **API Framework** | **FastAPI** | High-performance, asynchronous, and easy integration with Python AI libraries. |
 | **Orchestration** | **LangChain** | Standardizes the "Chain" of logic between the user, the database, and the LLM. |
 | **Vector Database** | **Qdrant** | Production-grade, Rust-based engine for sub-10ms semantic search. |
-| **Embedding Model** | **Jina (v2-base-en)** | 8k context window allows for high-quality embedding of long manual sections. |
+| **Embedding Model** | **Google Gemini (004)** | High-quality, fast, and cost-effective embeddings with a 768-dim output. |
 | **LLM (Brain)** | **Llama 3 (via Groq)** | Current primary LLM for all reasoning; ultra-fast inference. (OpenAI GPT-4.1 migration planned). |
 
 ## 3. Data Processing Flow (Ingestion)
 *This happens once when new manuals are added.*
 1.  **Parsing:** `PyMuPDF` extracts text from PDF/DOCX counseling manuals.
 2.  **Chunking:** `RecursiveCharacterTextSplitter` breaks text into ~500-800 token pieces with 10% overlap to preserve context.
-3.  **Embedding:** Jina converts these text chunks into 768-dimensional mathematical vectors.
+3.  **Embedding:** Google Gemini converts these text chunks into 768-dimensional mathematical vectors.
 4.  **Storage:** Vectors and their original text (metadata) are stored in a **Qdrant Collection**.
 
 ## 4. Request Lifecycle (Inference - Streaming)

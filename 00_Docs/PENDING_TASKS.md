@@ -25,6 +25,7 @@ This document tracks all approved features and improvements.
 
 ## 3. Maintenance & Cleanup (New)
 *   [x] **RAG Hallucination Fix:** Implemented greeting heuristic and prompt robustness to prevent irrelevant context usage for simple messages.
+*   [x] **Embedding Migration:** Switched from Jina HTTP API (20s latency) to Google Gemini `text-embedding-004` (Fast/Free tier).
 *   [x] Models Cleanup: De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
 *   [x] Streamlit Frontend: Implemented a full-featured testing UI in `frontend/app.py`.
 *   [ ] Tests: Add unit/integration tests for summarization and chat.
