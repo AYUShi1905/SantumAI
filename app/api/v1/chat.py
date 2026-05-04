@@ -8,6 +8,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 import logging
 import json
 from services.moderation import ModerationService
+import time 
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
@@ -33,6 +34,7 @@ async def chat_rag_stream(request: ChatRequest):
     Parallelized orchestration (Moderation, Routing, Retrieval) handled in RAGService.
     """
     try:
+        start = time.time()
         # 1. Convert history
         history = _convert_history(request.chat_history)
         
@@ -49,6 +51,9 @@ async def chat_rag_stream(request: ChatRequest):
             stress=request.stress,
             energy=request.energy
         )
+
+        end = time.time()
+        print("Time taken:", end - start, "s")
 
         return StreamingResponse(generator, media_type="text/event-stream")
 
