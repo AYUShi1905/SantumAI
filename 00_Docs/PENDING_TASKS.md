@@ -25,11 +25,11 @@ This document tracks all approved features and improvements.
 
 ## 3. Maintenance & Cleanup (New)
 *   [x] **RAG Hallucination Fix:** Implemented greeting heuristic and prompt robustness to prevent irrelevant context usage for simple messages.
-*   [x] **Embedding Migration:** Switched from Jina HTTP API (20s latency) to Google Gemini `text-embedding-004` (Fast/Free tier).
-*   [ ] **Latency Optimization (Parallelism):** 
-    *   [ ] Refactor API to use `asyncio.gather` for concurrent Moderation, Routing, and Embedding.
-    *   [ ] **Router/Rephraser Merger:** Merge classification and rephrasing into a single LLM call to save tokens and time.
-    *   [ ] **Heuristic Bypass:** Implement fast Python-based greeting detection to skip RAG for introductory messages.
+*   [x] **Embedding Migration:** Switched from Jina HTTP API (20s latency) to Google Gemini `gemini-embedding-001` (Fast/Free tier).
+*   [x] **Latency Optimization (Parallelism):** 
+    *   [x] Refactor API to use `asyncio.gather` for concurrent Moderation, Routing, and Speculative Retrieval.
+    *   [x] **Router/Rephraser Merger:** Merge classification and rephrasing into a single LLM call to save tokens and time.
+    *   [x] **Heuristic Bypass:** Implement fast Python-based greeting detection to skip RAG for introductory messages (Sub-100ms goal).
 *   [x] Models Cleanup: De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
 *   [x] Streamlit Frontend: Implemented a full-featured testing UI in `frontend/app.py`.
 *   [ ] Tests: Add unit/integration tests for summarization and chat.
@@ -44,4 +44,4 @@ This document tracks all approved features and improvements.
 *   **[ ] VectifyAI PageIndex:** Research into advanced PDF indexing (See `00_Docs/01_Future_Proposals/VectifyAI_PageIndex_Research.md`).
 
 ---
-*Updated: April 29, 2026*
+*Updated: May 4, 2026*
