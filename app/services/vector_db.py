@@ -20,7 +20,8 @@ class VectorDBService:
         self.embeddings = GoogleGenerativeAIEmbeddings(
             model=settings.GOOGLE_EMBEDDING_MODEL,
             google_api_key=settings.GOOGLE_API_KEY,
-            task_type="retrieval_document"
+            task_type="retrieval_document",
+            output_dimensionality=768
         )
         # Set custom name for LangSmith tracing
         try:
