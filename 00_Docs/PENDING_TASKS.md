@@ -16,6 +16,7 @@ This document tracks all approved features and improvements.
 *   **[x] Mood-Aware Response:** Multi-dimensional EQ (Happiness, Stress, Energy) on a 1-10 scale.
 *   **[x] Tiktoken Integration:** Implemented precise token counting in `app/utils/tokens.py`.
 *   **[x] Safety Prompt Engineering:** Refined system prompt for empathetic counseling, situational crisis triggers, and clinical boundaries.
+*   **[x] Human Therapist Redirection:** Integrated [Santum.net](https://Santum.net) referral logic into `ModerationService` and `RAGService` for professional care requests.
 
 ## 2. Chat History Summarization (Complete)
 *   **[x] Summarization Service:** Implemented using Llama 3 8B.

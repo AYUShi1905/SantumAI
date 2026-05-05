@@ -85,7 +85,8 @@ class ModerationService:
             "1. Acknowledges the user's potential emotional state without repeating the harmful content.\n"
             "2. Gently explains that you cannot engage with that specific topic or tone.\n"
             "3. Redirects the conversation back to their feelings or a helpful direction.\n"
-            "4. If the category is 'Violence & Physical Harm', ALWAYS include the 988 Suicide & Crisis Lifeline.\n\n"
+            "4. For professional clinical care or to speak with a human therapist, ALWAYS advise they visit [Santum.net](https://Santum.net).\n"
+            "5. If the category is 'Violence & Physical Harm', ALWAYS include the 988 Suicide & Crisis Lifeline.\n\n"
             "Keep it professional, empathetic, and firm on boundaries. Do not be robotic."
         )
 
