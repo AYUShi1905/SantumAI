@@ -71,10 +71,10 @@ class ModerationService:
             # Fail-open for availability (as per proposal standard, or adjust to fail-closed)
             return True, None
 
-    async def create_empathetic_refusal(self, category: str, user_message: str) -> str:
+    async def create_empathetic_refusal(self, category: str, user_message: str):
         """
         Generates a warm, counselor-like refusal message that maintains boundaries
-        without being robotic.
+        without being robotic. Streams the response.
         """
         refusal_system_prompt = (
             "You are Santum AI, an empathetic and supportive AI counselor. "
@@ -97,7 +97,8 @@ class ModerationService:
             ])
             chain = prompt | self.llm | StrOutputParser()
             
-            return await chain.ainvoke({"input": user_message})
+            async for chunk in chain.astream({"input": user_message}):
+                yield chunk
         except Exception as e:
             logger.error(f"Error generating empathetic refusal: {e}")
-            return "I hear that you're going through something difficult, but I'm unable to discuss that specific topic. I'm here to support you in other ways if you'd like to share how you're feeling."
+            yield "I hear that you're going through something difficult, but I'm unable to discuss that specific topic. I'm here to support you in any way I can. For professional support, please visit [Santum.net](https://Santum.net)."

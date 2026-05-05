@@ -247,9 +247,21 @@ Retrieved Context:
         if not is_safe:
             # Cancel retrieval if it's still running
             retrieval_task.cancel()
-            refusal_message = await self.moderation_service.create_empathetic_refusal(category, query)
-            yield refusal_message
-            yield f"\n\n{json.dumps({'total_tokens': 0, 'status': 'safety_violation', 'category': category})}"
+            
+            current_tokens = 0
+            async for chunk in self.moderation_service.create_empathetic_refusal(category, query):
+                if chunk:
+                    current_tokens += count_tokens(chunk)
+                    yield chunk
+            
+            metadata = {
+                "total_tokens": current_tokens,
+                "status": "safety_violation",
+                "category": category,
+                "model_used": "moderator",
+                "mode": "safety_refusal"
+            }
+            yield f"\n\n{json.dumps(metadata)}"
             return
         
         # 3. Reasoning & Routing Result
