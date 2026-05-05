@@ -31,8 +31,9 @@ This document tracks all approved features and improvements.
     *   [x] Refactor API to use background tasks (`asyncio.create_task`) for true concurrent Moderation, Routing, and Speculative Retrieval with **Early Exits**.
     *   [x] **Router/Rephraser Merger:** Merge classification and rephrasing into a single LLM call to save tokens and time.
     *   [x] **Heuristic Bypass:** Implement fast Python-based greeting detection and early-exit logic to skip retrieval for introductory messages (Sub-100ms goal).
-    *   [x] **Standalone Query Integration:** Fixed logic to ensure the rephrased query from the Router is actually used in the final LLM generation.
-*   [x] Models Cleanup: De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
+    *   [x] Standalone Query Integration: Fixed logic to ensure the rephrased query from the Router is actually used in the final LLM generation.
+    *   [x] **Staged Embedding Generation:** Implemented async batching (100 docs) and delays (10s) with logging to handle Gemini rate limits.
+    *   [x] Models Cleanup: De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
 *   [x] Streamlit Frontend: Implemented a full-featured testing UI in `frontend/app.py`.
 *   [ ] Tests: Add unit/integration tests for summarization and chat.
 
@@ -44,6 +45,10 @@ This document tracks all approved features and improvements.
 
 ## 5. Future Proposals (Planned)
 *   **[ ] VectifyAI PageIndex:** Research into advanced PDF indexing (See `00_Docs/01_Future_Proposals/VectifyAI_PageIndex_Research.md`).
+
+---
+*Updated: May 5, 2026*
+] VectifyAI PageIndex:** Research into advanced PDF indexing (See `00_Docs/01_Future_Proposals/VectifyAI_PageIndex_Research.md`).
 
 ---
 *Updated: May 4, 2026*

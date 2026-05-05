@@ -27,6 +27,11 @@ class Settings(BaseSettings):
     LANGSMITH_API_KEY: Optional[str] = None
     LANGSMITH_PROJECT: str = "santum-ai"
 
+    # Embedding Rate Limiting
+    # Google Free Tier: 100 RPM. We use small batches and delays to stay safe.
+    EMBEDDING_BATCH_SIZE: int = 5
+    EMBEDDING_DELAY_SECONDS: float = 10.0
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()

@@ -77,10 +77,67 @@ class VectorDBService:
         vectorstore = self.get_vectorstore()
         return await vectorstore.asimilarity_search(query, k=k)
 
-    def add_documents(self, documents: List[Document]):
-        """Adds a list of LangChain documents to the vector store."""
+    async def add_documents(self, documents: List[Document]):
+        """
+        Adds a list of LangChain documents to the vector store in stages.
+        Uses batching, delays, and retries to handle Google Gemini API rate limits.
+        """
+        import asyncio
+        import logging
+        logger = logging.getLogger(__name__)
+
         vectorstore = self.get_vectorstore()
-        vectorstore.add_documents(documents)
+        batch_size = settings.EMBEDDING_BATCH_SIZE
+        delay = settings.EMBEDDING_DELAY_SECONDS
+        
+        total_docs = len(documents)
+        total_batches = (total_docs + batch_size - 1) // batch_size
+        
+        start_msg = f"Starting staged ingestion: {total_docs} docs, {total_batches} batches (Size: {batch_size}, Delay: {delay}s)"
+        logger.info(start_msg)
+
+        for i in range(0, total_docs, batch_size):
+            batch = documents[i : i + batch_size]
+            current_batch_num = (i // batch_size) + 1
+            
+            # Retry logic for individual batch
+            max_retries = 3
+            retry_count = 0
+            while retry_count <= max_retries:
+                try:
+                    progress_msg = f"[Batch {current_batch_num}/{total_batches}] Embedding {len(batch)} chunks (Attempt {retry_count + 1})..."
+                    logger.info(progress_msg)
+                    
+                    await vectorstore.aadd_documents(batch)
+                    
+                    success_msg = f"[Batch {current_batch_num}/{total_batches}] Successfully ingested."
+                    logger.info(success_msg)
+                    break # Success, exit retry loop
+                except Exception as e:
+                    error_msg = str(e)
+                    if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+                        retry_count += 1
+                        if retry_count <= max_retries:
+                            wait_time = 60 # Wait a full minute on 429 to let quota reset
+                            warn_msg = f"[Batch {current_batch_num}/{total_batches}] Rate limit hit. Waiting {wait_time}s before retry {retry_count}/{max_retries}..."
+                            logger.warning(warn_msg)
+                            await asyncio.sleep(wait_time)
+                        else:
+                            fail_msg = f"[Batch {current_batch_num}/{total_batches}] Max retries exceeded on 429."
+                            logger.error(fail_msg)
+                            raise e
+                    else:
+                        fail_msg = f"[Batch {current_batch_num}/{total_batches}] Non-retryable error: {error_msg}"
+                        logger.error(fail_msg)
+                        raise e
+            
+            # Delay between batches, but not after the last batch
+            if i + batch_size < total_docs:
+                logger.debug(f"Waiting {delay}s to respect rate limits...")
+                await asyncio.sleep(delay)
+        
+        final_msg = f"Successfully ingested all {total_docs} documents in {total_batches} stages."
+        logger.info(final_msg)
 
     def list_ingested_files(self) -> List[str]:
         """Returns a list of unique filenames present in the collection metadata."""

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Form
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form, BackgroundTasks
 from services.processor import DocumentProcessorService
 from services.vector_db import VectorDBService
 from models.response import IngestResponse
@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 @router.post("/file", response_model=IngestResponse)
 async def ingest_file(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     header_margin: Optional[float] = Form(0.1),
     footer_margin: Optional[float] = Form(0.1),
@@ -19,11 +20,8 @@ async def ingest_file(
     """
     Endpoint to upload a PDF or DOCX, process its content, and store it in the vector database.
     
-    Args:
-        file: The PDF or DOCX file to ingest.
-        header_margin: Percentage (0.0 - 0.2) of the top of the PDF to ignore (default 0.1).
-        footer_margin: Percentage (0.0 - 0.2) of the bottom of the PDF to ignore (default 0.1).
-        is_cbt_manual: Whether this document is a CBT manual (restricted to Premium users).
+    The ingestion to Vector DB is handled as a background task because it uses 
+    staged processing with delays to handle rate limits.
     """
     allowed_extensions = (".pdf", ".docx")
     if not file.filename.lower().endswith(allowed_extensions):
@@ -57,12 +55,12 @@ async def ingest_file(
         if not documents:
             raise HTTPException(status_code=400, detail="File content could not be extracted or is empty.")
 
-        # 3. Add to Vector DB
+        # 3. Add to Vector DB (Background Task)
         vector_db = VectorDBService()
-        vector_db.add_documents(documents)
+        background_tasks.add_task(vector_db.add_documents, documents)
 
         return IngestResponse(
-            message="File successfully processed and ingested",
+            message="File accepted for processing. Ingestion is running in the background.",
             filename=file.filename,
             chunks_processed=len(documents)
         )

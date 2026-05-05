@@ -5,6 +5,10 @@ from api.v1.ingest import router as ingest_router
 from api.v1.summarize import router as summarize_router
 from api.v1.chat import router as chat_router
 from api.v1.chat_title import router as chat_title_router
+from utils.logger import setup_logging
+
+# Initialize Logging
+setup_logging()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
