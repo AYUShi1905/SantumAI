@@ -33,36 +33,31 @@ async def chat_rag_stream(request: ChatRequest):
     Streams a response grounded in counseling manuals retrieved from Qdrant.
     Parallelized orchestration (Moderation, Routing, Retrieval) handled in RAGService.
     """
-    try:
-        start_time = time.time()
-        
-        # 1. Convert history
-        history = _convert_history(request.chat_history)
-        
-        # 2. Get streaming generator from RAG service
-        generator = rag_service.get_streaming_response(
-            query=request.message,
-            chat_history=history,
-            plan_level=request.plan_level,
-            use_reasoning=request.use_reasoning,
-            history_summary=request.history_summary,
-            remaining_tokens=request.remaining_tokens,
-            happiness=request.happiness,
-            stress=request.stress,
-            energy=request.energy
-        )
+    start_time = time.time()
+    
+    # 1. Convert history
+    history = _convert_history(request.chat_history)
+    
+    # 2. Get streaming generator from RAG service
+    generator = rag_service.get_streaming_response(
+        query=request.message,
+        chat_history=history,
+        plan_level=request.plan_level,
+        use_reasoning=request.use_reasoning,
+        history_summary=request.history_summary,
+        remaining_tokens=request.remaining_tokens,
+        happiness=request.happiness,
+        stress=request.stress,
+        energy=request.energy
+    )
 
-        async def ttft_logging_wrapper():
-            first_token_sent = False
-            async for chunk in generator:
-                if not first_token_sent and chunk:
-                    ttft = time.time() - start_time
-                    logger.info(f"BACKEND_TTFT: {ttft:.4f}s | Query: {request.message[:50]}...")
-                    first_token_sent = True
-                yield chunk
+    async def ttft_logging_wrapper():
+        first_token_sent = False
+        async for chunk in generator:
+            if not first_token_sent and chunk:
+                ttft = time.time() - start_time
+                logger.info(f"BACKEND_TTFT: {ttft:.4f}s | Query: {request.message[:50]}...")
+                first_token_sent = True
+            yield chunk
 
-        return StreamingResponse(ttft_logging_wrapper(), media_type="text/event-stream")
-
-    except Exception as e:
-        logger.error(f"Error in RAG chat stream: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"RAG Error: {str(e)}")
+    return StreamingResponse(ttft_logging_wrapper(), media_type="text/event-stream")

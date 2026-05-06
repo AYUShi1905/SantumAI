@@ -1,7 +1,8 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Form, BackgroundTasks
+from fastapi import APIRouter, UploadFile, File, Form, BackgroundTasks
 from services.processor import DocumentProcessorService
 from services.vector_db import VectorDBService
 from models.response import IngestResponse
+from core.exceptions import IngestionError, SantumException
 from typing import Optional
 import logging
 
@@ -19,15 +20,11 @@ async def ingest_file(
 ):
     """
     Endpoint to upload a PDF or DOCX, process its content, and store it in the vector database.
-    
-    The ingestion to Vector DB is handled as a background task because it uses 
-    staged processing with delays to handle rate limits.
     """
     allowed_extensions = (".pdf", ".docx")
     if not file.filename.lower().endswith(allowed_extensions):
-        raise HTTPException(
-            status_code=400, 
-            detail=f"Unsupported file type. Allowed: {', '.join(allowed_extensions)}"
+        raise IngestionError(
+            message=f"Unsupported file type. Allowed: {', '.join(allowed_extensions)}"
         )
 
     try:
@@ -46,14 +43,13 @@ async def ingest_file(
             )
         except ValueError as ve:
             if str(ve) == "SCANNED_PDF":
-                raise HTTPException(
-                    status_code=400, 
-                    detail="The uploaded PDF appears to be a scanned document (image-based). Please upload a text-based PDF or a DOCX file."
+                raise IngestionError(
+                    message="The uploaded PDF appears to be a scanned document (image-based). Please upload a text-based PDF or a DOCX file."
                 )
-            raise HTTPException(status_code=400, detail=str(ve))
+            raise IngestionError(message=str(ve))
         
         if not documents:
-            raise HTTPException(status_code=400, detail="File content could not be extracted or is empty.")
+            raise IngestionError(message="File content could not be extracted or is empty.")
 
         # 3. Add to Vector DB (Background Task)
         vector_db = VectorDBService()
@@ -64,43 +60,27 @@ async def ingest_file(
             filename=file.filename,
             chunks_processed=len(documents)
         )
-
-    except Exception as e:
-        logger.error(f"Error during ingestion: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
     finally:
         await file.close()
 
 @router.get("/files")
 async def get_files():
     """Returns a list of all unique files that have been ingested."""
-    try:
-        vector_db = VectorDBService()
-        files = vector_db.list_ingested_files()
-        return {"files": files, "count": len(files)}
-    except Exception as e:
-        logger.error(f"Error listing files: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+    vector_db = VectorDBService()
+    files = vector_db.list_ingested_files()
+    return {"files": files, "count": len(files)}
 
 @router.delete("/file")
 async def delete_file(filename: str):
     """Deletes all data associated with a specific filename."""
-    try:
-        vector_db = VectorDBService()
-        vector_db.delete_by_filename(filename)
-        return {"message": f"Successfully deleted data for file: {filename}"}
-    except Exception as e:
-        logger.error(f"Error deleting file {filename}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+    vector_db = VectorDBService()
+    vector_db.delete_by_filename(filename)
+    return {"message": f"Successfully deleted data for file: {filename}"}
 
 @router.delete("/all")
 async def delete_all():
     """Clears the entire collection."""
-    try:
-        vector_db = VectorDBService()
-        vector_db.clear_collection()
-        return {"message": "Successfully cleared the entire collection"}
-    except Exception as e:
-        logger.error(f"Error clearing collection: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+    vector_db = VectorDBService()
+    vector_db.clear_collection()
+    return {"message": "Successfully cleared the entire collection"}
 
