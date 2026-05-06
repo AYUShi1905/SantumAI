@@ -37,11 +37,11 @@ This document tracks all approved features and improvements.
 *   [x] Streamlit Frontend: Implemented a full-featured testing UI in `frontend/app.py`.
 *   [ ] Tests: Add unit/integration tests for summarization and chat.
 
-## 4. Security & Prompt Hardening (In Progress)
+## 4. Security & Prompt Hardening (Complete)
 *   **[x] Abuse Detection Layer:** Implement a dedicated moderation layer (e.g., GPT-OSS-Safeguard-20B) to filter abusive content before it reaches the counselor model.
 *   **[ ] Session Guardrails:** Implement backend logic to verify session-start safety requirements (e.g., disclaimer acknowledgment state).
-*   **[ ] Advanced Hardening:** Implement full security-first prompt architecture to prevent jailbreaking and instruction disclosure (Prop-01).
-*   **[ ] Format Enforcement:** Integrate strict Markdown and empathy-first response rules into the `RAGService`.
+*   **[x] Advanced Hardening:** Implement full security-first prompt architecture to prevent jailbreaking and instruction disclosure (Prop-01).
+*   **[x] Format Enforcement:** Integrate strict Markdown and empathy-first response rules into the `RAGService`.
 
 ## 5. Future Proposals (Planned)
 *   **[ ] VectifyAI PageIndex:** Research into advanced PDF indexing (See `00_Docs/01_Future_Proposals/VectifyAI_PageIndex_Research.md`).

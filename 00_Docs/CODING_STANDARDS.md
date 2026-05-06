@@ -28,7 +28,8 @@ app/
 │   ├── rag_service.py     # LangChain & RAG orchestration
 │   ├── vector_db.py       # Qdrant client & semantic search logic
 │   ├── llm_provider.py    # OpenAI/Groq wrappers & model logic
-│   └── processor.py       # PDF parsing & text chunking logic
+│   ├── processor.py       # PDF parsing & text chunking logic
+│   └── prompt_builder.py  # Centralized persona & security prompt logic
 ├── models/                # Data Schemas (Pydantic)
 │   ├── request.py         # API Request models
 │   └── response.py        # API Response & Metadata models
@@ -65,3 +66,8 @@ app/
 ### 3.5 Type Safety
 *   Strictly use Pydantic models for all API I/O.
 *   Always include return type hints for functions.
+
+### 3.6 Prompt Engineering
+*   **Centralization:** NEVER hardcode system prompts in `rag_service.py` or API routes. All persona, security, and formatting instructions must reside in `services/prompt_builder.py`.
+*   **Security Hardening:** All prompts must include the "Instruction Disclosure Defense" and "Jailbreak Defense" blocks.
+*   **Format Enforcement:** Conversational Markdown rules (Selective Bolding, Empathy-First) must be strictly managed within the Builder.

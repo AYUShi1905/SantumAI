@@ -25,7 +25,8 @@ A high-performance, scalable Python-based RAG (Retrieval-Augmented Generation) m
 2.  **User Query:** Next.js opens a `StreamingResponse` connection to the FastAPI backend.
 3.  **Semantic Search & Prompting:**
     - FastAPI/Qdrant finds the manual context (Top 3-5 chunks).
-    - LangChain constructs the grounded prompt.
+    - **SystemPromptBuilder** constructs the modular system prompt (Persona, Security, Markdown).
+    - LangChain merges the prompt with retrieved context and history.
 4.  **Streaming Inference:** 
     - The LLM (Groq/OpenAI) begins generating the response.
     - FastAPI streams text "chunks" to Next.js in real-time.

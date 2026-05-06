@@ -5,10 +5,10 @@ from core.config import settings
 def setup_logging():
     """
     Configures the global logging settings for the application.
-    Sets the log level based on the DEBUG setting and directs output to stdout.
+    Defaults to INFO level to keep logs clean even if DEBUG=True is set for server reload.
     """
-    # Determine the log level based on the DEBUG flag in settings
-    log_level = logging.DEBUG if settings.DEBUG else logging.INFO
+    # Force INFO level even if settings.DEBUG is True to avoid verbose library logs
+    log_level = logging.INFO
     
     # Configure the root logger
     logging.basicConfig(
@@ -26,5 +26,8 @@ def setup_logging():
     # Silence noisy third-party libraries
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("groq").setLevel(logging.WARNING)
+    logging.getLogger("openai").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
     
     logger.info(f"Logging initialized with level: {logging.getLevelName(log_level)}")
