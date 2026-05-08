@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2026-05-03",
+  "total_chunks": 154,
+  "embedding_approved_chunks": 139,
+  "rule_engine_chunks": 15,
+  "coverage": [
+    {
+      "area": "Santum platform overview",
+      "status": "covered",
+      "source": "sitemap, patients FAQ, membership plans",
+      "notes": "Core public identity, services and free membership covered."
+    },
+    {
+      "area": "Membership and onboarding",
+      "status": "covered",
+      "source": "patients FAQ, membership plans",
+      "notes": "Free membership, questionnaire, dashboard, cancellation, pause and mobile access covered."
+    },
+    {
+      "area": "Plans",
+      "status": "partially covered",
+      "source": "membership plans, patients FAQ",
+      "notes": "Individual, Couples, Teens, Staff and Gift are covered at overview level. Teens/minor policy has contradiction/gap and needs internal verification."
+    },
+    {
+      "area": "Therapy formats",
+      "status": "covered",
+      "source": "patients FAQ",
+      "notes": "Anytime messaging, live chat, video, intro messages and dashboard joining covered."
+    },
+    {
+      "area": "Pricing and payments",
+      "status": "covered with freshness warning",
+      "source": "patients FAQ, membership plans",
+      "notes": "R545/R995/L1/L2, Payfast, cards/EFT, medical aid and refunds covered; live checkout prices should be verified before payment UX."
+    },
+    {
+      "area": "Therapist governance",
+      "status": "covered",
+      "source": "patients FAQ",
+      "notes": "Matching, L1/L2, vetting, registrations and therapist change covered."
+    },
+    {
+      "area": "Treatable conditions",
+      "status": "covered as non-diagnostic overview",
+      "source": "treatable conditions, mental health overview",
+      "notes": "Condition list covered, with high-risk conditions routed carefully."
+    },
+    {
+      "area": "Privacy/security",
+      "status": "partially covered",
+      "source": "patients FAQ",
+      "notes": "Anonymous use and encryption claims covered. Full Privacy Policy extraction failed; POPIA/data retention/deletion need legal source indexing."
+    },
+    {
+      "area": "Terms/refunds/cancellations",
+      "status": "partially covered",
+      "source": "patients FAQ",
+      "notes": "FAQ refund and cancellation content covered. Full Terms & Conditions extraction failed and should be added."
+    },
+    {
+      "area": "Support/contact",
+      "status": "covered",
+      "source": "contact page, patients FAQ",
+      "notes": "Email, WhatsApp, location, membership support and load shedding covered."
+    },
+    {
+      "area": "Santum AI integration",
+      "status": "policy starter",
+      "source": "Santum AI page listed but extraction limited/429; product-policy assumptions marked for review",
+      "notes": "AI identity, consent and handover rules included as review-required."
+    },
+    {
+      "area": "Safety/escalation",
+      "status": "covered as rule engine starter",
+      "source": "sitemap, patients FAQ, mental health overview",
+      "notes": "Emergency message and Santum-listed numbers included. Should be clinically/legal reviewed before launch."
+    }
+  ],
+  "remaining_required_inputs": [
+    "Full Santum Privacy Policy text",
+    "Full Santum Terms & Conditions text",
+    "Santum AI-specific privacy, consent and data retention policy",
+    "Internal teen/minor consent policy",
+    "Live therapist directory or API schema for names, languages, availability and specialties",
+    "Live pricing/API source for checkout-level prices",
+    "Internal refund approval workflow",
+    "Clinical safety protocol approved by Santum clinical governance"
+  ]
+}

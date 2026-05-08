@@ -1,0 +1,46 @@
+{
+  "schema_version": "2.0",
+  "description": "Production-grade Santum RAG chunk schema for Santum AI.",
+  "fields": {
+    "id": "Stable unique identifier.",
+    "version": "Dataset schema/content version.",
+    "last_updated": "Date chunk was generated or reviewed.",
+    "status": "verified_public_source or needs_verification.",
+    "needs_clinical_review": "Boolean flag for clinical governance review.",
+    "needs_legal_review": "Boolean flag for legal/POPIA/terms review.",
+    "category": "Top-level retrieval category.",
+    "topic": "Specific chunk topic.",
+    "audience": "Expected audience.",
+    "content": "Human-readable factual content.",
+    "embedding_text": "Text to embed. Includes category/topic/tags/intents/content.",
+    "tags": "Filtering and query-expansion tags.",
+    "intent": "Retrieval intent labels.",
+    "example_queries": "Likely user phrasings.",
+    "retrieval_priority": "0-1 ranking hint for reranking.",
+    "risk_level": "low, medium, high, critical.",
+    "embedding_approved": "False when chunk should be handled by rules rather than vector retrieval.",
+    "safety_routing": "Route and escalation handling.",
+    "response_style": "Preferred voice.",
+    "response_constraints": "Guardrails for generated answers.",
+    "source": "Source name, URL, key and retrieval date."
+  },
+  "recommended_indexing": {
+    "embed_field": "embedding_text",
+    "store_metadata_fields": [
+      "id",
+      "category",
+      "topic",
+      "tags",
+      "intent",
+      "risk_level",
+      "retrieval_priority",
+      "source",
+      "status"
+    ],
+    "pre_retrieval_filters": [
+      "embedding_approved == true"
+    ],
+    "pre_llm_rule_engine": "Run safety_rules before vector search.",
+    "reranking": "Boost exact category/topic/tag matches and penalize needs_verification for factual user-facing claims."
+  }
+}

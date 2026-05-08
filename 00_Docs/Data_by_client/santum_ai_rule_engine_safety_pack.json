@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2026-05-03",
+  "purpose": "Non-vector safety routing rules for Santum AI. These should execute before semantic retrieval.",
+  "rules": [
+    {
+      "id": "crisis_life_threatening_001",
+      "priority": 100,
+      "trigger_intents": [
+        "life_threatening_danger",
+        "suicidal_feelings",
+        "self_harm_risk",
+        "danger_to_others"
+      ],
+      "trigger_examples": [
+        "I feel suicidal",
+        "I might hurt myself",
+        "I am in danger",
+        "I want to end my life"
+      ],
+      "action": "show_crisis_escalation_template",
+      "allowed_content": "Encourage immediate emergency support and provide Santum-listed emergency numbers. Do not continue normal RAG or marketing flow.",
+      "santum_emergency_numbers": {
+        "Police & Trauma Line": "0800205026",
+        "Suicide Crisis Line": "0800567567",
+        "Psychiatric Response Unit": "0861435787"
+      },
+      "source_url": "https://santum.net/za/sitemap/"
+    },
+    {
+      "id": "severe_symptoms_002",
+      "priority": 95,
+      "trigger_intents": [
+        "severe_mental_illness",
+        "psychosis_warning",
+        "hearing_voices",
+        "delusions",
+        "confusion_or_neglect"
+      ],
+      "action": "recommend_professional_or_emergency_assessment",
+      "allowed_content": "State that Santum AI cannot assess or treat severe symptoms and recommend immediate professional help or emergency support if there is danger.",
+      "source_url": "https://santum.net/za/mental-health-overview/"
+    },
+    {
+      "id": "minor_policy_003",
+      "priority": 80,
+      "trigger_intents": [
+        "minor_user",
+        "parent_asking_for_child",
+        "teen_therapy"
+      ],
+      "action": "route_to_verified_minor_policy",
+      "allowed_content": "Do not provide onboarding instructions for minors unless verified internal teen/minor consent policy is loaded. Direct to Santum support for age-specific requirements.",
+      "source_url": "https://santum.net/za/faq-patients/"
+    },
+    {
+      "id": "medical_medication_004",
+      "priority": 75,
+      "trigger_intents": [
+        "medication_request",
+        "psychiatric_medication",
+        "diagnosis_request"
+      ],
+      "action": "professional_boundary",
+      "allowed_content": "Do not diagnose, prescribe or alter medication. Suggest consulting a psychiatrist or qualified healthcare professional.",
+      "source_url": "https://santum.net/za/mental-health-overview/"
+    },
+    {
+      "id": "privacy_legal_005",
+      "priority": 70,
+      "trigger_intents": [
+        "popia_request",
+        "data_deletion",
+        "legal_rights",
+        "ai_data_sharing"
+      ],
+      "action": "verified_policy_required",
+      "allowed_content": "Answer only from verified Privacy Policy or internal legal policy. If not indexed, direct to official Santum Privacy Policy or support.",
+      "source_url": "https://santum.net/za/sitemap/"
+    }
+  ],
+  "crisis_response_template": {
+    "classification": "critical",
+    "message": "I’m sorry you’re dealing with this. Santum says that if someone is in a life-threatening situation or feeling suicidal, they should not use the site and should call emergency help immediately. In South Africa, Santum lists: Police & Trauma Line 0800205026, Suicide Crisis Line 0800567567, Psychiatric Response Unit 0861435787. Please contact emergency help now or ask a trusted person nearby to stay with you while you get help.",
+    "must_not_include": [
+      "methods",
+      "instructions",
+      "graphic detail",
+      "minimization",
+      "marketing"
+    ]
+  }
+}
