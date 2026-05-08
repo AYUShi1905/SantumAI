@@ -277,7 +277,7 @@ class RAGService:
                 answer_part = chunk
                 chunk_tokens = count_tokens(answer_part)
                 if (current_tokens + chunk_tokens) > remaining_tokens:
-                    yield "\n\n⚠️ **Token limit reached.** Response truncated."
+                    yield "\n\nI’m so sorry, but it looks like we’ve reached a limit on our tokens, so I had to stop my response here. Please top up your balance if you’d like us to continue our conversation."
                     limit_reached = True
                     break
 

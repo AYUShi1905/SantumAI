@@ -1,10 +1,12 @@
 from typing import Tuple, Optional
 import json
 import logging
+import re
 from langchain_groq import ChatGroq
 from core.config import settings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from services.prompt_builder import SystemPromptBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +16,26 @@ class ModerationService:
     Uses GPT-OSS-Safeguard-20B for policy-based moderation.
     """
 
+    # LAYER 1: Fast deterministic rules based on client's rule_engine_safety_pack.json
+    # Refined to prevent false positives (e.g., "my job is in danger")
+    DETERMINISTIC_RULES = {
+        "Crisis & Life Threatening": re.compile(
+            r"\b(i (want to|might|will) (suicide|kill myself|hurt myself|end my life|die)|i am in danger|i'm in danger)\b", re.IGNORECASE
+        ),
+        "Severe Mental Symptoms": re.compile(
+            r"\b(i am (hearing voices|hallucinating)|i have delusions|i'm losing touch with reality)\b", re.IGNORECASE
+        ),
+        "Minor Policy": re.compile(
+            r"\b(i am (under 18|a minor)|i'm (1[0-7]|[1-9])( years old)?|therapy for my (child|son|daughter))\b", re.IGNORECASE
+        ),
+        "Medical & Medication": re.compile(
+            r"\b((can you|please) (prescribe|diagnose|give me a diagnosis)|what (medication|pills) should i take)\b", re.IGNORECASE
+        ),
+        "Privacy & Legal": re.compile(
+            r"\b(delete my (data|account)|what are my (legal|popia) rights)\b", re.IGNORECASE
+        )
+    }
+
     def __init__(self):
         self.llm = ChatGroq(
             api_key=settings.GROQ_API_KEY,
@@ -22,20 +44,7 @@ class ModerationService:
             max_tokens=500  # Allowing some tokens for reasoning if needed
         )
         
-        self.system_policy = (
-            "Task: Check if the user message violates the safety policy below.\n\n"
-            "SAFETY CATEGORIES:\n"
-            "1. Violence & Physical Harm: Threats, glorification of violence, or self-harm.\n"
-            "2. Hate Speech: Discrimination based on race, religion, sexual orientation, etc.\n"
-            "3. Harassment: Severe verbal abuse or sexual harassment directed at the AI.\n"
-            "4. Sexual Content: Explicit or non-consensual sexual content.\n"
-            "5. Illegal Acts: Promoting or providing instructions for illegal activities.\n\n"
-            "OUTPUT FORMAT:\n"
-            "Return a JSON object with two fields:\n"
-            "- \"safe\": boolean (true if the message is safe, false if it violates any category)\n"
-            "- \"category\": string (the name of the violated category, or \"None\" if safe)\n\n"
-            "Return ONLY the JSON object."
-        )
+        self.system_policy = SystemPromptBuilder.get_moderation_policy()
         
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", self.system_policy),
@@ -49,6 +58,13 @@ class ModerationService:
         Analyzes a message for safety.
         Returns: (is_safe, category_name)
         """
+        # LAYER 1: Fast Deterministic Rule Engine
+        for category, pattern in self.DETERMINISTIC_RULES.items():
+            if pattern.search(message):
+                logger.info(f"Deterministic safety rule triggered: {category}")
+                return False, category
+
+        # LAYER 2: AI Moderation (Fallback for complex nuances)
         try:
             result = await self.chain.ainvoke(
                 {"input": message},
@@ -73,22 +89,15 @@ class ModerationService:
 
     async def create_empathetic_refusal(self, category: str, user_message: str):
         """
-        Generates a warm, counselor-like refusal message that maintains boundaries
-        without being robotic. Streams the response.
+        Generates a warm, counselor-like refusal message based on client-approved safety rules.
+        For Crisis (Rule 001), it uses the mandatory template word-for-word.
         """
-        refusal_system_prompt = (
-            "You are Santum AI, an empathetic and supportive AI counselor. "
-            "A user has sent a message that violates our safety policies. "
-            f"REASON FOR VIOLATION: {category}\n\n"
-            "TASK:\n"
-            "Write a brief (2-3 sentences), warm, and non-judgmental response that:\n"
-            "1. Acknowledges the user's potential emotional state without repeating the harmful content.\n"
-            "2. Gently explains that you cannot engage with that specific topic or tone.\n"
-            "3. Redirects the conversation back to their feelings or a helpful direction.\n"
-            "4. For professional clinical care or to speak with a human therapist, ALWAYS advise they visit [Santum.net](https://Santum.net).\n"
-            "5. If the category is 'Violence & Physical Harm', ALWAYS include the 988 Suicide & Crisis Lifeline.\n\n"
-            "Keep it professional, empathetic, and firm on boundaries. Do not be robotic."
-        )
+        
+        if category == "Crisis & Life Threatening":
+            yield SystemPromptBuilder.get_crisis_template()
+            return
+
+        refusal_system_prompt = SystemPromptBuilder.get_refusal_prompt(category)
 
         try:
             prompt = ChatPromptTemplate.from_messages([
