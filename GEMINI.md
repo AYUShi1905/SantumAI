@@ -15,8 +15,10 @@
 ## 4. Task Execution & Autonomy
 *   **Wait for Instruction:** Never jump to the next task or implement new features/endpoints immediately after finishing one.
 *   **Explicit Approval:** You **MUST** wait for the user to explicitly say "proceed," "next task," or provide a specific directive before moving on to any new work.
-*   **Confirmation:** After completing a task, briefly summarize the result and stop to wait for further instructions.
+## 6. Frontend Status
+*   **Mandate:** The `frontend/` directory and the Streamlit application are for **internal testing purposes only**. 
+*   **Restriction:** Do **NOT** include frontend components in deployment guides, prerequisite documentation, or architectural overviews unless explicitly instructed to do so. Focus all production-related efforts exclusively on the FastAPI backend.
 
-## 5. Research & Context
-*   **Ignore Old Docs:** Always ignore the `00_Docs/Original/` directory during research unless specifically instructed otherwise.
-*   **Source of Truth:** Use `GEMINI.md`, `00_Docs/PENDING_TASKS.md`, and `00_Docs/CODING_STANDARDS.md` as your primary guides.
+## 7. LLM Provider Strategy
+*   **Mandate:** **Groq** is the primary LLM provider and acts as a high-performance **substitute for OpenAI**. 
+*   **Constraint:** Although some internal docs mention future OpenAI (GPT-4) migration, the current production implementation **MUST** stay focused on Groq. All documentation, environment variables, and code changes should prioritize Groq's infrastructure and Llama 3 models.
