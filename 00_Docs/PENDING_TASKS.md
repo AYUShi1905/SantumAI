@@ -17,6 +17,7 @@ This document tracks all approved features and improvements.
 *   **[x] Tiktoken Integration:** Implemented precise token counting in `app/utils/tokens.py`.
 *   **[x] Safety Prompt Engineering:** Refined system prompt for empathetic counseling, situational crisis triggers, and clinical boundaries.
 *   **[x] Human Therapist Redirection:** Integrated [Santum.net](https://Santum.net) referral logic into `ModerationService` and `RAGService` for professional care requests.
+*   **[x] Dynamic Plan Limits:** Implemented 80/100/120 word caps for Input/Output across Free/Standard/Premium tiers.
 
 ## 2. Chat History Summarization (Complete)
 *   **[x] Summarization Service:** Implemented using Llama 3 8B.
@@ -47,8 +48,4 @@ This document tracks all approved features and improvements.
 *   **[ ] VectifyAI PageIndex:** Research into advanced PDF indexing (See `00_Docs/01_Future_Proposals/VectifyAI_PageIndex_Research.md`).
 
 ---
-*Updated: May 5, 2026*
-] VectifyAI PageIndex:** Research into advanced PDF indexing (See `00_Docs/01_Future_Proposals/VectifyAI_PageIndex_Research.md`).
-
----
-*Updated: May 4, 2026*
+*Updated: May 11, 2026*
