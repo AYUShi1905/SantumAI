@@ -3,7 +3,7 @@ import re
 import random
 from typing import AsyncGenerator, List, Dict, Any, Optional
 import json
-from fastapi import logger
+import logging
 from langchain_classic.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -17,6 +17,9 @@ from services.moderation import ModerationService
 from services.prompt_builder import SystemPromptBuilder
 from models.request import PlanLevel
 from utils.tokens import count_tokens
+
+# Initialize Logger
+logger = logging.getLogger(__name__)
 
 # Heuristic patterns for pure greetings
 GREETING_PATTERNS = [
@@ -219,24 +222,36 @@ class RAGService:
             chain = qa_prompt | llm
             
             full_response = ""
-            current_tokens = 0
+            current_output_tokens = 0
             limit_reached = False
 
             async for chunk in chain.astream({"input": query, "chat_history": chat_history, "context": "No specific context needed for this greeting."}):
+                # 1. Capture text content
                 if chunk.content:
-                    chunk_tokens = count_tokens(chunk.content)
-                    if (current_tokens + chunk_tokens) > remaining_tokens:
-                        yield "\n\n⚠️ **Token limit reached.** Response truncated."
-                        limit_reached = True
-                        break
-                    
                     full_response += chunk.content
-                    current_tokens += chunk_tokens
                     yield chunk.content
+                
+                # 2. Capture accurate Output tokens
+                meta = None
+                if hasattr(chunk, "usage_metadata") and chunk.usage_metadata:
+                    meta = chunk.usage_metadata
+                elif hasattr(chunk, "response_metadata") and chunk.response_metadata:
+                    meta = chunk.response_metadata.get("token_usage")
+                
+                if meta:
+                    current_output_tokens = meta.get("output_tokens", 0)
+                    logger.info(f"GROQ_OUTPUT_METADATA (Greeting): {meta}")
             
+            # Final Calculation: Sum of (User Query) + (AI Response)
+            query_tokens = count_tokens(query)
+            if current_output_tokens == 0:
+                current_output_tokens = count_tokens(full_response)
+                
+            current_total_tokens = query_tokens + current_output_tokens
+
             metadata = {
-                "total_tokens": current_tokens,
-                "status": "truncated" if limit_reached else "completed",
+                "total_tokens": current_total_tokens,
+                "status": "completed",
                 "model_used": "reasoning" if use_reasoning else "simple",
                 "plan": plan_level,
                 "mode": "greeting_hardened"
@@ -252,7 +267,7 @@ class RAGService:
             docs = []
 
         # 6. Final QA Generation (Phase 3)
-        # IMPORTANT: We use 'standalone_query' here to ensure the LLM has full context
+        # We manually build the chain to ensure we get AIMessageChunks with metadata
         llm = self.llm_service.get_llm(use_reasoning=use_reasoning)
         qa_prompt = self._get_prompts(
             history_summary=history_summary, 
@@ -263,32 +278,48 @@ class RAGService:
             has_context=True
         )
 
-        question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
+        # Manually format the context from docs
+        context_str = "\n\n".join([doc.page_content for doc in docs])
+        
+        # Build the manual chain
+        chain = qa_prompt | llm
 
         full_response = ""
-        current_tokens = 0
+        current_output_tokens = 0
         limit_reached = False
 
-        async for chunk in question_answer_chain.astream(
-            {"input": query, "chat_history": chat_history, "context": docs},
-            config={"run_name": "CounselorRAG"}
+        async for chunk in chain.astream(
+            {"input": query, "chat_history": chat_history, "context": context_str}
         ):
-            if chunk:
-                answer_part = chunk
-                chunk_tokens = count_tokens(answer_part)
-                if (current_tokens + chunk_tokens) > remaining_tokens:
-                    yield "\n\nI’m so sorry, but it looks like we’ve reached a limit on our tokens, so I had to stop my response here. Please top up your balance if you’d like us to continue our conversation."
-                    limit_reached = True
-                    break
+            # 1. Capture text content
+            if chunk.content:
+                full_response += chunk.content
+                yield chunk.content
 
-                full_response += answer_part
-                current_tokens += chunk_tokens
-                yield answer_part
+            # 2. Capture accurate Output tokens only (to ignore RAG DATA overhead)
+            meta = None
+            if hasattr(chunk, "usage_metadata") and chunk.usage_metadata:
+                meta = chunk.usage_metadata
+            elif hasattr(chunk, "response_metadata") and chunk.response_metadata:
+                meta = chunk.response_metadata.get("token_usage")
+            
+            if meta:
+                current_output_tokens = meta.get("output_tokens", 0)
+                logger.info(f"GROQ_OUTPUT_METADATA: {meta}")
+
+        # Final Calculation: Sum of (User Query) + (AI Response)
+        # This explicitly ignores RAG Data, System Prompt, and History overhead.
+        query_tokens = count_tokens(query)
+        # Fallback for output tokens if metadata failed
+        if current_output_tokens == 0:
+            current_output_tokens = count_tokens(full_response)
+            
+        current_total_tokens = query_tokens + current_output_tokens
 
         # Final metadata chunk
         metadata = {
-            "total_tokens": current_tokens,
-            "status": "truncated" if limit_reached else "completed",
+            "total_tokens": current_total_tokens,
+            "status": "completed",
             "model_used": "reasoning" if use_reasoning else "simple",
             "plan": plan_level,
             "mode": "rag_complex"
