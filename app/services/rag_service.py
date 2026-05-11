@@ -211,7 +211,7 @@ class RAGService:
             # Cancel retrieval - we don't need it for greetings
             retrieval_task.cancel()
             
-            llm = self.llm_service.get_llm(use_reasoning=use_reasoning)
+            llm = self.llm_service.get_llm(use_reasoning=use_reasoning, plan_level=plan_level)
             qa_prompt = self._get_prompts(
                 history_summary=history_summary, 
                 plan_level=plan_level, 

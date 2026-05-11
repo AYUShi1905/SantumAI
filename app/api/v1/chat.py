@@ -34,6 +34,22 @@ async def chat_rag_stream(request: ChatRequest):
     Parallelized orchestration (Moderation, Routing, Retrieval) handled in RAGService.
     """
     start_time = time.time()
+
+    # 0. Validate Input Word Count based on Plan
+    word_count = len(request.message.split())
+    limits = {
+        "free": 80,
+        "standard": 100,
+        "premium": 120
+    }
+    limit = limits.get(request.plan_level.value, 80)
+    
+    if word_count > limit:
+        logger.warning(f"Input limit exceeded: {word_count} words (Limit: {limit} for {request.plan_level})")
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Your message is {word_count} words long, which exceeds the {limit}-word limit for the {request.plan_level.title()} plan. Please shorten your message or upgrade your plan."
+        )
     
     # 1. Convert history
     history = _convert_history(request.chat_history)

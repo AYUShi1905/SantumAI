@@ -49,18 +49,31 @@ class SystemPromptBuilder:
         )
 
     def _get_plan_guidance(self) -> str:
+        guidance = ""
         if self.plan_level == PlanLevel.PREMIUM:
-            return (
+            guidance = (
                 "As a PREMIUM service provider, you should incorporate specific Cognitive Behavioral Therapy (CBT) "
                 "techniques and terminology when relevant to the retrieved context."
             )
-        return "Focus on general supportive therapy, active listening, and emotional validation."
+        elif self.plan_level == PlanLevel.STANDARD:
+            guidance = "As a STANDARD service provider, focus on high-quality emotional validation and structured supportive inquiry."
+        else:
+            guidance = "Focus on general supportive therapy, active listening, and emotional validation."
+        
+        # Add word limit instruction
+        word_limit = 80 if self.plan_level == PlanLevel.FREE else (100 if self.plan_level == PlanLevel.STANDARD else 120)
+        limit_instruction = f"\nSTRICT BREVITY: Your entire response MUST be under {word_limit} words. Be impactful but exceptionally concise."
+        
+        return guidance + limit_instruction
 
     def _get_markdown_rules(self) -> str:
+        # Adjust empathy paragraph length based on plan
+        empathy_length = "1-2 short sentences" if self.plan_level == PlanLevel.FREE else "2-3 sentences"
+        
         return (
             "CONVERSATIONAL MARKDOWN & FORMATTING RULES:\n"
-            "1. EMPATHY FIRST: Every response MUST start with a paragraph of reflective listening and validation. Never start a response with a list or bold text.\n"
-            "2. BALANCED EMPATHY: If the user expresses a concern, provide full reflective listening. If it's a greeting, respond with a warm invitation to share more (2-4 sentences).\n"
+            f"1. EMPATHY FIRST: Every response MUST start with {empathy_length} of reflective listening and validation. Never start a response with a list or bold text.\n"
+            "2. BALANCED EMPATHY: If the user expresses a concern, provide full reflective listening. If it's a greeting, respond with a warm invitation to share more (1-2 sentences).\n"
             "3. SELECTIVE BOLDING: Use **bold** text EXCLUSIVELY for: Validation of key feelings, Crisis resources (e.g., **988 Suicide & Crisis Lifeline**), or key therapeutic terms.\n"
             "4. STRUCTURAL LISTS: Use bullet points ONLY for step-by-step exercises or lists of resources. NEVER use lists for conversational dialogue.\n"
             "5. NO HEADERS/TABLES: Avoid using Markdown headers (#) or Tables unless explicitly requested for data comparison."
