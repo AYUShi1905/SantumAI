@@ -204,11 +204,12 @@ class RAGService:
         if use_reasoning is None:
             use_reasoning = (classification == "complex")
         
-        # 4. HEURISTIC: Skip retrieval if greeting or simple first-message
-        is_greeting = (classification == "simple") and not chat_history
+        # 4. HEURISTIC: Skip retrieval ONLY for pure greetings or basic acknowledgments on first message
+        # Informational queries (FAQ) are now classified as 'complex' by the router to ensure retrieval.
+        skip_retrieval = (classification == "simple") and not chat_history
         
-        if is_greeting:
-            # Cancel retrieval - we don't need it for greetings
+        if skip_retrieval:
+            # Cancel retrieval - we don't need it for basic greetings/acknowledgments
             retrieval_task.cancel()
             
             llm = self.llm_service.get_llm(use_reasoning=use_reasoning, plan_level=plan_level)

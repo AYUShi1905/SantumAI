@@ -26,7 +26,9 @@ class RouterService:
         self.system_prompt = (
             "You are a routing and rephrasing assistant for Santum AI, an emotional-wellbeing counselor.\n"
             "Your task is twofold:\n"
-            "1. CLASSIFY: Determine if the message is 'simple' (greetings, FAQ, basic info) or 'complex' (emotional support, counseling, deep reasoning).\n"
+            "1. CLASSIFY: Determine if the message is 'simple' or 'complex'.\n"
+            "   - 'simple': ONLY for pure greetings (hi, hello) or basic acknowledgments (ok, thanks, understood).\n"
+            "   - 'complex': For EVERYTHING else, including FAQ, questions about Santum, counseling requests, emotional support, or deep reasoning.\n"
             "2. REPHRASE: Based on the chat history and the latest message, formulate a standalone query that represents the user's intent and can be used for document retrieval. "
             "The query must be from the USER'S perspective (e.g., 'How to manage stress' or 'I am feeling anxious') and NOT an AI response or a question directed at the user. "
             "If the query is already standalone, return it as is.\n\n"
