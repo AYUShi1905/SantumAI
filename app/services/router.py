@@ -45,7 +45,7 @@ class RouterService:
             ("human", "{input}")
         ])
         
-        self.chain = self.prompt | self.classifier_llm | StrOutputParser()
+        self.chain = (self.prompt | self.classifier_llm | StrOutputParser()).with_config({"run_name": "RouterChain"})
 
     async def process_query(self, message: str, chat_history: list = [], history_summary: Optional[str] = None) -> Tuple[Literal["simple", "complex"], str]:
         """
@@ -60,8 +60,7 @@ class RouterService:
             # For now, let's keep it simple as per the current LangChain flow
             
             result = await self.chain.ainvoke(
-                inputs,
-                config={"run_name": "QueryProcessor"}
+                inputs
             )
             
             # Clean up result in case model adds markdown formatting

@@ -61,7 +61,7 @@ class SummarizationService:
             ("human", human_prompt)
         ])
 
-        chain = prompt | self.llm
+        chain = (prompt | self.llm).with_config({"run_name": "SummarizationChain"})
         
         response = await chain.ainvoke({"chat_history": lc_messages})
         
@@ -91,11 +91,10 @@ class SummarizationService:
             ("human", human_prompt)
         ])
 
-        chain = prompt | self.llm
+        chain = (prompt | self.llm).with_config({"run_name": "TitleGenerationChain"})
         
         response = await chain.ainvoke(
-            {"chat_history": lc_messages},
-            config={"run_name": "TitleGenerator"}
+            {"chat_history": lc_messages}
         )
         
         # Clean up response in case LLM added quotes or extra text
