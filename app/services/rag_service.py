@@ -220,7 +220,7 @@ class RAGService:
                 stress=stress,
                 energy=energy
             )
-            chain = qa_prompt | llm
+            chain = (qa_prompt | llm).with_config({"run_name": "GreetingResponseChain"})
             
             full_response = ""
             current_output_tokens = 0
@@ -283,7 +283,7 @@ class RAGService:
         context_str = "\n\n".join([doc.page_content for doc in docs])
         
         # Build the manual chain
-        chain = qa_prompt | llm
+        chain = (qa_prompt | llm).with_config({"run_name": "MainRAGChain"})
 
         full_response = ""
         current_output_tokens = 0

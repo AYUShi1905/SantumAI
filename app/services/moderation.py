@@ -51,7 +51,7 @@ class ModerationService:
             ("human", "{input}")
         ])
         
-        self.chain = self.prompt | self.llm | StrOutputParser()
+        self.chain = (self.prompt | self.llm | StrOutputParser()).with_config({"run_name": "ModerationChain"})
 
     async def check_message(self, message: str) -> Tuple[bool, Optional[str]]:
         """
@@ -67,8 +67,7 @@ class ModerationService:
         # LAYER 2: AI Moderation (Fallback for complex nuances)
         try:
             result = await self.chain.ainvoke(
-                {"input": message},
-                config={"run_name": "SafetyGuard"}
+                {"input": message}
             )
             
             # Clean up result in case model adds markdown formatting
@@ -104,7 +103,7 @@ class ModerationService:
                 ("system", refusal_system_prompt),
                 ("human", "User message: {input}")
             ])
-            chain = prompt | self.llm | StrOutputParser()
+            chain = (prompt | self.llm | StrOutputParser()).with_config({"run_name": "EmpatheticRefusalChain"})
             
             async for chunk in chain.astream({"input": user_message}):
                 yield chunk
