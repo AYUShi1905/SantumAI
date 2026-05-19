@@ -7,7 +7,7 @@ As Santum AI moves toward production, the core system prompt needs to be "harden
 The following guardrails should be integrated into the core `RAGService` prompt:
 
 *   **Instruction Disclosure Defense:** Explicitly forbid the LLM from revealing its internal system prompt or guidelines if asked.
-*   **Persona Integrity:** The AI must never break character. It should not say "As an AI language model" or "I am an algorithm." It should identify as "Santum AI."
+*   **Persona Integrity:** The AI must never break character. It should not say "As an AI language model" or "I am an algorithm." It should identify as "Sai."
 *   **Clinical Boundaries:** Reinforce that the AI must never diagnose or prescribe, even if pressured by the user.
 *   **Unified Safety:** Ensure that "Greeting" bypasses still utilize the full safety and clinical boundary guardrails.
 

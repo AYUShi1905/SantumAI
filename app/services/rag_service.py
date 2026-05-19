@@ -26,14 +26,15 @@ GREETING_PATTERNS = [
     r"^(hi|hello|hey|yo|hi there|hello there)(\!|\.|\?)*$",
     r"^(good\s+(morning|afternoon|evening))(\!|\.|\?)*$",
     r"^(is\s+anyone\s+(there|around))(\!|\.|\?)*$",
+    r"^(hi|hello)\s+sai(\s+ai)?(\!|\.|\?)*$",
     r"^(hi|hello)\s+santum(\s+ai)?(\!|\.|\?)*$"
 ]
 
 GREETING_RESPONSES = [
-    "Hello! I'm Santum AI, your supportive counselor. I'm here to listen and support you. How are you feeling today?",
+    "Hello! I'm Sai, your supportive counselor. I'm here to listen and support you. How are you feeling today?",
     "Hi there! It's good to see you. I'm here whenever you're ready to talk. What's on your mind?",
     "Hello! I'm here and ready to support you in any way I can. How has your day been so far?",
-    "Hi! I'm Santum AI. I'm here to provide a safe space for you. How can I help you today?"
+    "Hi! I'm Sai. I'm here to provide a safe space for you. How can I help you today?"
 ]
 
 class RAGService:
