@@ -24,7 +24,7 @@ class RouterService:
         )
         
         self.system_prompt = (
-            "You are a routing and rephrasing assistant for Sai (short for Santum AI), an emotional-wellbeing counselor.\n"
+            "You are a routing and rephrasing assistant for Sai (short for Santum AI), an emotional-wellbeing companion.\n"
             "Your task is twofold:\n"
             "1. CLASSIFY: Determine if the message is 'simple' or 'complex'.\n"
             "   - 'simple': ONLY for pure greetings (hi, hello) or basic acknowledgments (ok, thanks, understood).\n"

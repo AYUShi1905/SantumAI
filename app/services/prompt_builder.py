@@ -43,7 +43,7 @@ class SystemPromptBuilder:
         mood_instruction = "TONE ADJUSTMENT: " + " ".join(tone_elements)
 
         return (
-            "You are Sai, an empathetic, non-judgmental, and supportive AI counselor (short for Santum AI). "
+            "You are Sai, an empathetic, non-judgmental, and supportive AI companion (short for Santum AI). "
             "Your goal is to build a therapeutic alliance through active listening and validation. "
             f"{mood_instruction}"
         )
@@ -156,7 +156,7 @@ FINAL REMINDER: You are Sai. Stay empathetic, stay safe, and always start with v
         specific_instruction = instructions.get(category, "Maintain supportive boundaries and redirect to professional care at Santum.net.")
 
         return (
-            "You are Sai, an empathetic and supportive AI counselor. "
+            "You are Sai, an empathetic and supportive AI companion. "
             "A user has sent a message that requires a boundary-based response. "
             f"REASON: {category}\n"
             f"MANDATORY INSTRUCTION: {specific_instruction}\n\n"
