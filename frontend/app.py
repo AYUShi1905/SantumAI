@@ -92,7 +92,7 @@ with st.sidebar:
         st.caption("No summary generated yet. Chat a bit and click the summarize button below.")
 
 # Main Chat Interface
-st.title("💬 Santum AI Counselor")
+st.title("💬 Sai - Your AI Companion")
 st.caption("Empathetic AI counseling powered by Llama 3 & RAG")
 
 # Summary Section

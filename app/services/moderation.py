@@ -88,7 +88,7 @@ class ModerationService:
 
     async def create_empathetic_refusal(self, category: str, user_message: str):
         """
-        Generates a warm, counselor-like refusal message based on client-approved safety rules.
+        Generates a warm, companion-like refusal message based on client-approved safety rules.
         For Crisis (Rule 001), it uses the mandatory template word-for-word.
         """
         

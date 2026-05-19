@@ -22,7 +22,7 @@ class SummarizationService:
             if role == "human":
                 lc_messages.append(HumanMessage(content=f"User: {msg.content}"))
             elif role == "ai":
-                lc_messages.append(AIMessage(content=f"Counselor: {msg.content}"))
+                lc_messages.append(AIMessage(content=f"Companion: {msg.content}"))
         return lc_messages
 
     async def summarize(self, chat_history: List[ChatMessage], existing_summary: str = None) -> str:
@@ -36,12 +36,12 @@ class SummarizationService:
         
         system_prompt = (
             "You are an expert supervisor for a counseling service. "
-            "Your task is to provide a concise, third-person summary of the conversation between a User and an AI Counselor. "
+            "Your task is to provide a concise, third-person summary of the conversation between a User and an AI Companion. "
             "Do NOT respond to the user. Do NOT provide advice. "
             "Only summarize: \n"
             "1. The user's primary emotional concerns.\n"
             "2. The main topics discussed.\n"
-            "3. The counselor's approach or suggestions.\n"
+            "3. The companion's approach or suggestions.\n"
             "Format the output as a single, empathetic, and professional paragraph (max 180 words)."
         )
 

@@ -31,7 +31,7 @@ GREETING_PATTERNS = [
 ]
 
 GREETING_RESPONSES = [
-    "Hello! I'm Sai, your supportive counselor. I'm here to listen and support you. How are you feeling today?",
+    "Hello! I'm Sai, your supportive companion. I'm here to listen and support you. How are you feeling today?",
     "Hi there! It's good to see you. I'm here whenever you're ready to talk. What's on your mind?",
     "Hello! I'm here and ready to support you in any way I can. How has your day been so far?",
     "Hi! I'm Sai. I'm here to provide a safe space for you. How can I help you today?"
