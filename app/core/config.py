@@ -13,15 +13,15 @@ class Settings(BaseSettings):
 
     # Model Roles (Aligned with AI Architecture Summary 2.pdf)
     # These can point to Groq or OpenAI models independently
-    MODEL_COUNSELING: str = "llama3-70b-8192"  # Main counselling response
-    MODEL_BACKGROUND: str = "llama3-8b-8192"   # Summarization, memory, moderation
-    MODEL_ROUTING: str = "llama3-8b-8192"      # Tags, routing, metadata
+    MODEL_COUNSELING: str = "llama-3.3-70b-versatile"  # Main counselling response
+    MODEL_BACKGROUND: str = "llama-3.1-8b-instant"   # Summarization, memory, moderation
+    MODEL_ROUTING: str = "llama-3.1-8b-instant"      # Tags, routing, metadata
 
     # Groq LLMs (Legacy - Keeping for backward compatibility temporarily)
     GROQ_API_KEY: str
-    GROQ_MODEL_SIMPLE: str = "llama3-8b-8192"
-    GROQ_MODEL_REASONING: str = "llama3-70b-8192"
-    GROQ_MODEL_MODERATION: str = "openai/gpt-oss-safeguard-20b"
+    GROQ_MODEL_SIMPLE: str = "llama-3.1-8b-instant"
+    GROQ_MODEL_REASONING: str = "llama-3.3-70b-versatile"
+    GROQ_MODEL_MODERATION: str = "llama-3.1-8b-instant"
 
     # App Settings
     PROJECT_NAME: str = "Santum AI RAG Service"
