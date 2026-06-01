@@ -132,7 +132,9 @@ FINAL REMINDER: You are Sai. Stay empathetic, stay safe, and always start with v
             "3. Minor Policy: The user is a minor (under 18) or asking for therapy for a child.\n"
             "4. Medical & Medication: Requests for diagnosis, psychiatric medication advice, or prescriptions.\n"
             "5. Privacy & Legal: Specific requests regarding POPIA, data deletion, or legal rights.\n"
-            "6. Standard Abuse: Hate speech, sexual content, harassment, or promoting illegal acts.\n\n"
+            "6. Standard Abuse: Hate speech, sexual content, harassment, or promoting illegal acts.\n"
+            "7. Medical Reassurance: Requests for reassurance about severe or new physical symptoms (chest pain, fainting).\n"
+            "8. Reassurance Loop: Repeatedly asking for certainty or guarantees about the same worry.\n\n"
             "OUTPUT FORMAT:\n"
             "Return a JSON object with two fields:\n"
             "- \"safe\": boolean (true if the message is safe, false if it violates any category)\n"
@@ -150,7 +152,9 @@ FINAL REMINDER: You are Sai. Stay empathetic, stay safe, and always start with v
             "Minor Policy": "Do not provide onboarding instructions for minors. Direct them to Santum support for age-specific requirements.",
             "Medical & Medication": "Do not diagnose, prescribe or alter medication. Suggest consulting a psychiatrist or qualified healthcare professional.",
             "Privacy & Legal": "Direct the user to the official Santum Privacy Policy or Santum support for data and legal queries.",
-            "Standard Abuse": "Gently explain that you cannot engage with that specific tone or content and redirect back to supportive conversation."
+            "Standard Abuse": "Gently explain that you cannot engage with that specific tone or content and redirect back to supportive conversation.",
+            "Medical Reassurance": "Do not provide medical reassurance. Acknowledge that anxiety causes body sensations but recommend medical assessment for new or severe physical symptoms.",
+            "Reassurance Loop": "Identify that the user is seeking repeated certainty. Avoid giving a guarantee. Instead, gently redirect them to a practical CBT step like worry postponement or uncertainty practice."
         }
 
         specific_instruction = instructions.get(category, "Maintain supportive boundaries and redirect to professional care at Santum.net.")

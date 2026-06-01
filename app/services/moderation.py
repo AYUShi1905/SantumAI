@@ -33,6 +33,12 @@ class ModerationService:
         ),
         "Privacy & Legal": re.compile(
             r"\b(delete my (data|account)|what are my (legal|popia) rights)\b", re.IGNORECASE
+        ),
+        "Medical Reassurance": re.compile(
+            r"\b(chest pain|fainting|is this a heart attack|am i dying|will i be okay)\b", re.IGNORECASE
+        ),
+        "Reassurance Loop": re.compile(
+            r"\b(are you sure|guarantee|promise me|tell me again|is it certain)\b", re.IGNORECASE
         )
     }
 

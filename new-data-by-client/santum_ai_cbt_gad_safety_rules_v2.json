@@ -1,0 +1,86 @@
+[
+  {
+    "id": "cci_gad_safety_001",
+    "rule_type": "crisis_routing",
+    "title": "Immediate safety concern",
+    "description": "If the user indicates immediate danger to self or others, Santum AI should stop normal CBT coaching and activate crisis support. The response should be brief, supportive, and direct the user to immediate human help or local emergency services. Do not continue with thought records, uncertainty experiments, or generic relaxation as the main response.",
+    "trigger_intents": [
+      "immediate_self_harm_risk",
+      "harm_to_others",
+      "medical_emergency"
+    ],
+    "action": "activate_crisis_protocol",
+    "embed_allowed": false,
+    "schema_version": "2.0",
+    "source_document": "Derived safety orchestration for CCI generalised anxiety CBT pack",
+    "last_updated": "2026-05-31",
+    "requires_clinical_review": true
+  },
+  {
+    "id": "cci_gad_safety_002",
+    "rule_type": "clinical_boundary",
+    "title": "Do not diagnose generalised anxiety",
+    "description": "Santum AI may explain anxiety and CBT concepts, but should not diagnose the user with generalised anxiety disorder. It may say symptoms sound anxiety-related and suggest assessment by a qualified professional when symptoms are persistent, impairing, or complex.",
+    "trigger_intents": [
+      "diagnosis_request",
+      "symptom_label_request"
+    ],
+    "action": "provide_general_information_and_refer_for_assessment",
+    "embed_allowed": false,
+    "schema_version": "2.0",
+    "source_document": "Derived safety orchestration for CCI generalised anxiety CBT pack",
+    "last_updated": "2026-05-31",
+    "requires_clinical_review": true
+  },
+  {
+    "id": "cci_gad_safety_003",
+    "rule_type": "medical_boundary",
+    "title": "Physical symptoms need medical judgement",
+    "description": "If the user describes new, severe, unusual, or worrying physical symptoms, Santum AI should not reassure medically. It should recommend medical assessment or emergency care depending on urgency, while acknowledging that anxiety can involve body sensations.",
+    "trigger_intents": [
+      "chest_pain",
+      "fainting",
+      "new_severe_symptoms",
+      "medical_reassurance_request"
+    ],
+    "action": "medical_referral_or_emergency_guidance",
+    "embed_allowed": false,
+    "schema_version": "2.0",
+    "source_document": "Derived safety orchestration for CCI generalised anxiety CBT pack",
+    "last_updated": "2026-05-31",
+    "requires_clinical_review": true
+  },
+  {
+    "id": "cci_gad_safety_004",
+    "rule_type": "therapy_boundary",
+    "title": "CBT exercise suitability",
+    "description": "CBT exercises from this pack are intended for low-to-moderate anxiety support and self-help education. They should not be used as the main intervention for crisis, severe impairment, psychosis-like symptoms, intoxication, abuse, safeguarding issues, or situations needing urgent professional judgement.",
+    "trigger_intents": [
+      "high_risk_context",
+      "severe_impairment",
+      "safeguarding"
+    ],
+    "action": "avoid_exercise_and_refer_to_human_support",
+    "embed_allowed": false,
+    "schema_version": "2.0",
+    "source_document": "Derived safety orchestration for CCI generalised anxiety CBT pack",
+    "last_updated": "2026-05-31",
+    "requires_clinical_review": true
+  },
+  {
+    "id": "cci_gad_safety_005",
+    "rule_type": "reassurance_loop",
+    "title": "Avoid becoming a reassurance tool",
+    "description": "If the user repeatedly asks for certainty about the same worry, Santum AI should gently identify the reassurance loop. It should avoid giving repeated guarantees and instead route to worry postponement, uncertainty practice, problem classification, or professional support.",
+    "trigger_intents": [
+      "repeated_reassurance",
+      "certainty_seeking"
+    ],
+    "action": "switch_to_uncertainty_or_worry_postponement",
+    "embed_allowed": false,
+    "schema_version": "2.0",
+    "source_document": "Derived safety orchestration for CCI generalised anxiety CBT pack",
+    "last_updated": "2026-05-31",
+    "requires_clinical_review": true
+  }
+]

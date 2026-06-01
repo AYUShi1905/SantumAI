@@ -1,0 +1,282 @@
+[
+  {
+    "id": "cci_gad_worksheet_001",
+    "schema_version": "2.0",
+    "source_document": "CCI What Me Worry generalised anxiety workbook series",
+    "content_type": "worksheet_instruction",
+    "clinical_domain": "generalised_anxiety",
+    "therapy_modality": "CBT",
+    "category": "cbt_worksheet_library",
+    "topic": "worry_log",
+    "title": "Worry Log Template",
+    "content": "Capture the date, trigger, worry sentence, emotion intensity, behaviour used, and what happened afterwards. Use one line per worry so the record stays simple. The purpose is pattern recognition, not perfect analysis. Santum AI can ask the user for one recent example and help complete the log conversationally. The assistant should avoid turning this into repeated reassurance. If the same worry returns many times, the response should point out the loop gently and suggest postponement, uncertainty practice, or counselling support. In a chatbot response, this should be explained in plain language, followed by one manageable action the user can try today.",
+    "embedding_text": "Worry Log Template. Capture the date, trigger, worry sentence, emotion intensity, behaviour used, and what happened afterwards. Use one line per worry so the record stays simple. The purpose is pattern recognition, not perfect analysis. Santum AI can ask the user for one recent example and help complete the log conversationally. The assistant should avoid turning this into repeated reassurance. If the same worry returns many times, the response should point out the loop gently and suggest postponement, uncertainty practice, or counselling support. In a chatbot response, this should be explained in plain language, followed by one manageable action the user can try today.",
+    "word_count": 101,
+    "tags": [
+      "cbt",
+      "generalised_anxiety",
+      "worksheet",
+      "worry_log"
+    ],
+    "intent": [
+      "worksheet_selection",
+      "structured_user_input"
+    ],
+    "example_queries": [
+      "Can you help me fill out a worry log template?",
+      "Do you have a worksheet for anxiety?",
+      "Can we work through this step by step?"
+    ],
+    "response_style": "warm_clinical_stepwise",
+    "response_constraints": [
+      "ask_one_question_at_a_time",
+      "do_not_overwhelm_user",
+      "do_not_use_for_crisis"
+    ],
+    "safety": {
+      "risk_level": "low",
+      "embed_allowed": true,
+      "escalation_required": false,
+      "route_to_rule_engine": false
+    },
+    "orchestration": {
+      "retrieval_priority": 0.8,
+      "suggested_use": "retrieve_when_user_requests_structured_worksheet",
+      "max_response_words_by_tier": {
+        "free": 80,
+        "standard": 100,
+        "premium": 120
+      }
+    },
+    "governance": {
+      "derived_summary_not_verbatim": true,
+      "requires_clinical_review": true,
+      "version": "1.0",
+      "last_updated": "2026-05-31"
+    }
+  },
+  {
+    "id": "cci_gad_worksheet_002",
+    "schema_version": "2.0",
+    "source_document": "CCI What Me Worry generalised anxiety workbook series",
+    "content_type": "worksheet_instruction",
+    "clinical_domain": "generalised_anxiety",
+    "therapy_modality": "CBT",
+    "category": "cbt_worksheet_library",
+    "topic": "thought_record",
+    "title": "Thought Record Template",
+    "content": "Record the situation, emotion, automatic thought, evidence supporting the thought, evidence not supporting it, a balanced thought, and emotion intensity after the review. This worksheet is best for a specific event rather than a vague mood. Santum AI should complete one field at a time, using short prompts. The balanced thought should be realistic and believable, not artificially positive. If the user is too distressed to think clearly, use grounding first and return to the worksheet later. In a chatbot response, this should be explained in plain language, followed by one manageable action the user can try today. The assistant should validate the user's experience, avoid diagnosing, and frame the skill as practice rather than a quick cure.",
+    "embedding_text": "Thought Record Template. Record the situation, emotion, automatic thought, evidence supporting the thought, evidence not supporting it, a balanced thought, and emotion intensity after the review. This worksheet is best for a specific event rather than a vague mood. Santum AI should complete one field at a time, using short prompts. The balanced thought should be realistic and believable, not artificially positive. If the user is too distressed to think clearly, use grounding first and return to the worksheet later. In a chatbot response, this should be explained in plain language, followed by one manageable action the user can try today. The assistant should validate the user's experience, avoid diagnosing, and frame the skill as practice rather than a quick cure.",
+    "word_count": 118,
+    "tags": [
+      "cbt",
+      "generalised_anxiety",
+      "worksheet",
+      "thought_record"
+    ],
+    "intent": [
+      "worksheet_selection",
+      "structured_user_input"
+    ],
+    "example_queries": [
+      "Can you help me fill out a thought record template?",
+      "Do you have a worksheet for anxiety?",
+      "Can we work through this step by step?"
+    ],
+    "response_style": "warm_clinical_stepwise",
+    "response_constraints": [
+      "ask_one_question_at_a_time",
+      "do_not_overwhelm_user",
+      "do_not_use_for_crisis"
+    ],
+    "safety": {
+      "risk_level": "low",
+      "embed_allowed": true,
+      "escalation_required": false,
+      "route_to_rule_engine": false
+    },
+    "orchestration": {
+      "retrieval_priority": 0.8,
+      "suggested_use": "retrieve_when_user_requests_structured_worksheet",
+      "max_response_words_by_tier": {
+        "free": 80,
+        "standard": 100,
+        "premium": 120
+      }
+    },
+    "governance": {
+      "derived_summary_not_verbatim": true,
+      "requires_clinical_review": true,
+      "version": "1.0",
+      "last_updated": "2026-05-31"
+    }
+  },
+  {
+    "id": "cci_gad_worksheet_003",
+    "schema_version": "2.0",
+    "source_document": "CCI What Me Worry generalised anxiety workbook series",
+    "content_type": "worksheet_instruction",
+    "clinical_domain": "generalised_anxiety",
+    "therapy_modality": "CBT",
+    "category": "cbt_worksheet_library",
+    "topic": "problem_solving",
+    "title": "Problem-Solving Worksheet",
+    "content": "Define one current problem, list possible solutions, choose one realistic option, plan the exact next step, set a time, and review what happened. This template is for practical problems where action is possible. Santum AI should help narrow broad worries into one solvable item. If the worry is hypothetical, the assistant should not force problem-solving; it should use worry postponement or uncertainty practice instead. The worksheet should remain brief enough for a user to complete during a chat. In a chatbot response, this should be explained in plain language, followed by one manageable action the user can try today. The assistant should validate the user's experience, avoid diagnosing, and frame the skill as practice rather than a quick cure.",
+    "embedding_text": "Problem-Solving Worksheet. Define one current problem, list possible solutions, choose one realistic option, plan the exact next step, set a time, and review what happened. This template is for practical problems where action is possible. Santum AI should help narrow broad worries into one solvable item. If the worry is hypothetical, the assistant should not force problem-solving; it should use worry postponement or uncertainty practice instead. The worksheet should remain brief enough for a user to complete during a chat. In a chatbot response, this should be explained in plain language, followed by one manageable action the user can try today. The assistant should validate the user's experience, avoid diagnosing, and frame the skill as practice rather than a quick cure.",
+    "word_count": 119,
+    "tags": [
+      "cbt",
+      "generalised_anxiety",
+      "worksheet",
+      "problem_solving"
+    ],
+    "intent": [
+      "worksheet_selection",
+      "structured_user_input"
+    ],
+    "example_queries": [
+      "Can you help me fill out a problem-solving worksheet?",
+      "Do you have a worksheet for anxiety?",
+      "Can we work through this step by step?"
+    ],
+    "response_style": "warm_clinical_stepwise",
+    "response_constraints": [
+      "ask_one_question_at_a_time",
+      "do_not_overwhelm_user",
+      "do_not_use_for_crisis"
+    ],
+    "safety": {
+      "risk_level": "low",
+      "embed_allowed": true,
+      "escalation_required": false,
+      "route_to_rule_engine": false
+    },
+    "orchestration": {
+      "retrieval_priority": 0.8,
+      "suggested_use": "retrieve_when_user_requests_structured_worksheet",
+      "max_response_words_by_tier": {
+        "free": 80,
+        "standard": 100,
+        "premium": 120
+      }
+    },
+    "governance": {
+      "derived_summary_not_verbatim": true,
+      "requires_clinical_review": true,
+      "version": "1.0",
+      "last_updated": "2026-05-31"
+    }
+  },
+  {
+    "id": "cci_gad_worksheet_004",
+    "schema_version": "2.0",
+    "source_document": "CCI What Me Worry generalised anxiety workbook series",
+    "content_type": "worksheet_instruction",
+    "clinical_domain": "generalised_anxiety",
+    "therapy_modality": "CBT",
+    "category": "cbt_worksheet_library",
+    "topic": "uncertainty_ladder",
+    "title": "Uncertainty Ladder Template",
+    "content": "List uncertainty behaviours from easiest to hardest, rate anxiety for each, choose a low-level item, practise it repeatedly, and record what was learned. The ladder should use safe, everyday examples. Santum AI should not suggest high-stakes uncertainty experiments. The point is to practise tolerating the feeling of not knowing, not to become careless. Review should focus on whether anxiety rose and fell, whether the feared outcome occurred, and whether the user resisted the usual certainty-seeking behaviour. In a chatbot response, this should be explained in plain language, followed by one manageable action the user can try today. The assistant should validate the user's experience, avoid diagnosing, and frame the skill as practice rather than a quick cure.",
+    "embedding_text": "Uncertainty Ladder Template. List uncertainty behaviours from easiest to hardest, rate anxiety for each, choose a low-level item, practise it repeatedly, and record what was learned. The ladder should use safe, everyday examples. Santum AI should not suggest high-stakes uncertainty experiments. The point is to practise tolerating the feeling of not knowing, not to become careless. Review should focus on whether anxiety rose and fell, whether the feared outcome occurred, and whether the user resisted the usual certainty-seeking behaviour. In a chatbot response, this should be explained in plain language, followed by one manageable action the user can try today. The assistant should validate the user's experience, avoid diagnosing, and frame the skill as practice rather than a quick cure.",
+    "word_count": 117,
+    "tags": [
+      "cbt",
+      "generalised_anxiety",
+      "worksheet",
+      "uncertainty_ladder"
+    ],
+    "intent": [
+      "worksheet_selection",
+      "structured_user_input"
+    ],
+    "example_queries": [
+      "Can you help me fill out a uncertainty ladder template?",
+      "Do you have a worksheet for anxiety?",
+      "Can we work through this step by step?"
+    ],
+    "response_style": "warm_clinical_stepwise",
+    "response_constraints": [
+      "ask_one_question_at_a_time",
+      "do_not_overwhelm_user",
+      "do_not_use_for_crisis"
+    ],
+    "safety": {
+      "risk_level": "low",
+      "embed_allowed": true,
+      "escalation_required": false,
+      "route_to_rule_engine": false
+    },
+    "orchestration": {
+      "retrieval_priority": 0.8,
+      "suggested_use": "retrieve_when_user_requests_structured_worksheet",
+      "max_response_words_by_tier": {
+        "free": 80,
+        "standard": 100,
+        "premium": 120
+      }
+    },
+    "governance": {
+      "derived_summary_not_verbatim": true,
+      "requires_clinical_review": true,
+      "version": "1.0",
+      "last_updated": "2026-05-31"
+    }
+  },
+  {
+    "id": "cci_gad_worksheet_005",
+    "schema_version": "2.0",
+    "source_document": "CCI What Me Worry generalised anxiety workbook series",
+    "content_type": "worksheet_instruction",
+    "clinical_domain": "generalised_anxiety",
+    "therapy_modality": "CBT",
+    "category": "cbt_worksheet_library",
+    "topic": "relapse_plan",
+    "title": "Self-Management Plan Template",
+    "content": "Record early warning signs, common triggers, the top three CBT skills that help, supportive people or services, and the first action to take if symptoms increase. This worksheet supports maintenance after the user has learned several skills. Santum AI should present it as a practical plan, not a guarantee that anxiety will not return. Include professional support options when worry is persistent, impairing, or difficult to manage alone. Keep the plan simple so it can be used during stress. In a chatbot response, this should be explained in plain language, followed by one manageable action the user can try today.",
+    "embedding_text": "Self-Management Plan Template. Record early warning signs, common triggers, the top three CBT skills that help, supportive people or services, and the first action to take if symptoms increase. This worksheet supports maintenance after the user has learned several skills. Santum AI should present it as a practical plan, not a guarantee that anxiety will not return. Include professional support options when worry is persistent, impairing, or difficult to manage alone. Keep the plan simple so it can be used during stress. In a chatbot response, this should be explained in plain language, followed by one manageable action the user can try today.",
+    "word_count": 100,
+    "tags": [
+      "cbt",
+      "generalised_anxiety",
+      "worksheet",
+      "relapse_plan"
+    ],
+    "intent": [
+      "worksheet_selection",
+      "structured_user_input"
+    ],
+    "example_queries": [
+      "Can you help me fill out a self-management plan template?",
+      "Do you have a worksheet for anxiety?",
+      "Can we work through this step by step?"
+    ],
+    "response_style": "warm_clinical_stepwise",
+    "response_constraints": [
+      "ask_one_question_at_a_time",
+      "do_not_overwhelm_user",
+      "do_not_use_for_crisis"
+    ],
+    "safety": {
+      "risk_level": "low",
+      "embed_allowed": true,
+      "escalation_required": false,
+      "route_to_rule_engine": false
+    },
+    "orchestration": {
+      "retrieval_priority": 0.8,
+      "suggested_use": "retrieve_when_user_requests_structured_worksheet",
+      "max_response_words_by_tier": {
+        "free": 80,
+        "standard": 100,
+        "premium": 120
+      }
+    },
+    "governance": {
+      "derived_summary_not_verbatim": true,
+      "requires_clinical_review": true,
+      "version": "1.0",
+      "last_updated": "2026-05-31"
+    }
+  }
+]
