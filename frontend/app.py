@@ -10,7 +10,7 @@ st.set_page_config(page_title="Santum AI - Testing Interface", layout="wide")
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "backend_url" not in st.session_state:
-    st.session_state.backend_url = "http://localhost:8000/api/v1"
+    st.session_state.backend_url = "https://santumai-lniw.onrender.com/api/v1"
 if "current_summary" not in st.session_state:
     st.session_state.current_summary = None
 

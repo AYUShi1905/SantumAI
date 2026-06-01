@@ -11,17 +11,12 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: str
     GOOGLE_EMBEDDING_MODEL: str = "gemini-embedding-001"
 
-    # Model Roles (Aligned with AI Architecture Summary 2.pdf)
-    # These can point to Groq or OpenAI models independently
     MODEL_COUNSELING: str = "llama-3.3-70b-versatile"  # Main counselling response
     MODEL_BACKGROUND: str = "llama-3.1-8b-instant"   # Summarization, memory, moderation
     MODEL_ROUTING: str = "llama-3.1-8b-instant"      # Tags, routing, metadata
 
     # Groq LLMs (Legacy - Keeping for backward compatibility temporarily)
     GROQ_API_KEY: str
-    GROQ_MODEL_SIMPLE: str = "llama-3.1-8b-instant"
-    GROQ_MODEL_REASONING: str = "llama-3.3-70b-versatile"
-    GROQ_MODEL_MODERATION: str = "llama-3.1-8b-instant"
 
     # App Settings
     PROJECT_NAME: str = "Santum AI RAG Service"
@@ -34,7 +29,6 @@ class Settings(BaseSettings):
     LANGSMITH_PROJECT: str = "santum-ai"
 
     # Embedding Rate Limiting
-    # Google Free Tier: 100 RPM. We use small batches and delays to stay safe.
     EMBEDDING_BATCH_SIZE: int = 5
     EMBEDDING_DELAY_SECONDS: float = 10.0
 
