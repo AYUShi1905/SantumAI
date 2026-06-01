@@ -18,6 +18,8 @@ This document tracks all approved features and improvements.
 *   **[x] Safety Prompt Engineering:** Refined system prompt for empathetic counseling, situational crisis triggers, and clinical boundaries.
 *   **[x] Human Therapist Redirection:** Integrated [Santum.net](https://Santum.net) referral logic into `ModerationService` and `RAGService` for professional care requests.
 *   **[x] Dynamic Plan Limits:** Implemented 80/100/120 word caps for Input/Output across Free/Standard/Premium tiers.
+*   **[x] Selective & Tiered RAG:** Implemented tiered retrieval (k=1/2/3) and conversational bypass (Prop-02).
+*   **[x] Memory Optimization:** Limited recent context to 6 messages to prevent context bloat (Prop-02).
 
 ## 2. Chat History Summarization (Complete)
 *   **[x] Summarization Service:** Implemented using Llama 3 8B.

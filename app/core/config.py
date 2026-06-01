@@ -11,7 +11,13 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: str
     GOOGLE_EMBEDDING_MODEL: str = "gemini-embedding-001"
 
-    # Groq LLMs
+    # Model Roles (Aligned with AI Architecture Summary 2.pdf)
+    # These can point to Groq or OpenAI models independently
+    MODEL_COUNSELING: str = "llama3-70b-8192"  # Main counselling response
+    MODEL_BACKGROUND: str = "llama3-8b-8192"   # Summarization, memory, moderation
+    MODEL_ROUTING: str = "llama3-8b-8192"      # Tags, routing, metadata
+
+    # Groq LLMs (Legacy - Keeping for backward compatibility temporarily)
     GROQ_API_KEY: str
     GROQ_MODEL_SIMPLE: str = "llama3-8b-8192"
     GROQ_MODEL_REASONING: str = "llama3-70b-8192"

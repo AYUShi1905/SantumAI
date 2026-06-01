@@ -11,19 +11,20 @@ class LLMProviderService:
 
     def __init__(self):
         self.api_key = settings.GROQ_API_KEY
-        self.simple_model = settings.GROQ_MODEL_SIMPLE
-        self.reasoning_model = settings.GROQ_MODEL_REASONING
+        # Aligned with AI Architecture Summary 2.pdf
+        self.counseling_model = settings.MODEL_COUNSELING
+        self.background_model = settings.MODEL_BACKGROUND
 
     def get_llm(self, use_reasoning: bool = False, streaming: bool = True, plan_level: Optional[PlanLevel] = None) -> ChatGroq:
         """
         Returns a configured ChatGroq instance.
         
         Args:
-            use_reasoning: If True, uses the Llama 3 70B model; otherwise 8B.
+            use_reasoning: If True, uses the Counseling (70B) model; otherwise Background (8B).
             streaming: Whether to enable streaming responses.
             plan_level: The user's subscription plan.
         """
-        model_name = self.reasoning_model if use_reasoning else self.simple_model
+        model_name = self.counseling_model if use_reasoning else self.background_model
         
         # We rely on Prompt Instructions for word limits to avoid cutting off sentences.
         # 1024 is a generous safety limit for all plans.
