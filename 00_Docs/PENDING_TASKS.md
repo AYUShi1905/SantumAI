@@ -37,6 +37,9 @@ This document tracks all approved features and improvements.
     *   [x] Standalone Query Integration: Fixed logic to ensure the rephrased query from the Router is actually used in the final LLM generation.
     *   [x] **Staged Embedding Generation:** Implemented async batching (100 docs) and delays (10s) with logging to handle Gemini rate limits.
     *   [x] Models Cleanup: De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
+*   [x] **Prompt Softening:** Softened "Santum.net" recommendation logic to be conditional and clinically relevant.
+*   [x] **Safety Policy Nuance:** Refined moderation policy to distinguish between social anxiety/stress and active crisis to reduce false positives.
+*   [x] **Configuration Synchronization:** Added missing environment variable (`GROQ_MODEL_MODERATION`) to `Settings` and `.example.env`.
 *   [x] Streamlit Frontend: Implemented a full-featured testing UI in `frontend/app.py`.
 *   [ ] Tests: Add unit/integration tests for summarization and chat.
 

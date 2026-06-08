@@ -85,6 +85,12 @@ class ModerationService:
             is_safe = data.get("safe", True)
             category = data.get("category", "None")
             
+            # If the model flagged it as unsafe but gave no category, treat it as safe 
+            # to avoid the "safe: false, category: None" logic trap.
+            if not is_safe and category == "None":
+                logger.warning(f"Moderation flagged unsafe but category was None for: {message[:50]}...")
+                return True, None
+            
             return is_safe, category if category != "None" else None
 
         except Exception as e:
