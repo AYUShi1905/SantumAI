@@ -33,6 +33,12 @@ class ModerationService:
         ),
         "Privacy & Legal": re.compile(
             r"\b(delete my (data|account)|what are my (legal|popia) rights)\b", re.IGNORECASE
+        ),
+        "Medical Reassurance": re.compile(
+            r"\b(chest pain|fainting|is this a heart attack|am i dying|will i be okay)\b", re.IGNORECASE
+        ),
+        "Reassurance Loop": re.compile(
+            r"\b(are you sure|guarantee|promise me|tell me again|is it certain)\b", re.IGNORECASE
         )
     }
 
@@ -79,6 +85,12 @@ class ModerationService:
             is_safe = data.get("safe", True)
             category = data.get("category", "None")
             
+            # If the model flagged it as unsafe but gave no category, treat it as safe 
+            # to avoid the "safe: false, category: None" logic trap.
+            if not is_safe and category == "None":
+                logger.warning(f"Moderation flagged unsafe but category was None for: {message[:50]}...")
+                return True, None
+            
             return is_safe, category if category != "None" else None
 
         except Exception as e:
@@ -88,7 +100,7 @@ class ModerationService:
 
     async def create_empathetic_refusal(self, category: str, user_message: str):
         """
-        Generates a warm, counselor-like refusal message based on client-approved safety rules.
+        Generates a warm, companion-like refusal message based on client-approved safety rules.
         For Crisis (Rule 001), it uses the mandatory template word-for-word.
         """
         

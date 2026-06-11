@@ -10,7 +10,7 @@ st.set_page_config(page_title="Santum AI - Testing Interface", layout="wide")
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "backend_url" not in st.session_state:
-    st.session_state.backend_url = "http://localhost:8000/api/v1"
+    st.session_state.backend_url = "https://santumai-lniw.onrender.com/api/v1"
 if "current_summary" not in st.session_state:
     st.session_state.current_summary = None
 
@@ -92,7 +92,7 @@ with st.sidebar:
         st.caption("No summary generated yet. Chat a bit and click the summarize button below.")
 
 # Main Chat Interface
-st.title("💬 Santum AI Counselor")
+st.title("💬 Sai - Your AI Companion")
 st.caption("Empathetic AI counseling powered by Llama 3 & RAG")
 
 # Summary Section

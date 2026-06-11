@@ -1,0 +1,43 @@
+{
+  "schema_version": "2.0",
+  "required_vector_fields": [
+    "id",
+    "content_type",
+    "category",
+    "topic",
+    "content",
+    "embedding_text",
+    "tags",
+    "intent",
+    "example_queries",
+    "safety",
+    "orchestration",
+    "governance"
+  ],
+  "embedding_field": "embedding_text",
+  "content_word_count_target": "100-150 words",
+  "do_embed": [
+    "psychoeducation",
+    "cbt_exercise",
+    "worksheet_instruction",
+    "socratic_prompt"
+  ],
+  "do_not_embed": [
+    "rule_engine",
+    "raw_pdf_text",
+    "page_numbers",
+    "headers",
+    "footers",
+    "tables_without_conversion",
+    "copyright_notices",
+    "references"
+  ],
+  "safety_design": "High-risk clinical routing should be handled by deterministic safety classifiers/rules before vector retrieval.",
+  "llm_orchestration_fields": [
+    "response_style",
+    "response_constraints",
+    "intent",
+    "orchestration",
+    "safety"
+  ]
+}

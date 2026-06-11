@@ -51,8 +51,10 @@ async def chat_rag_stream(request: ChatRequest):
             detail=f"Your message is {word_count} words long, which exceeds the {limit}-word limit for the {request.plan_level.title()} plan. Please shorten your message or upgrade your plan."
         )
     
-    # 1. Convert history
-    history = _convert_history(request.chat_history)
+    # 1. Convert history - Only keep the last 6 messages (3 exchanges)
+    # This aligns with the "Recent Context" strategy in AI Architecture Summary 2.pdf
+    recent_history = request.chat_history[-6:] if len(request.chat_history) > 6 else request.chat_history
+    history = _convert_history(recent_history)
     
     # 2. Get streaming generator from RAG service
     generator = rag_service.get_streaming_response(

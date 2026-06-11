@@ -26,14 +26,15 @@ GREETING_PATTERNS = [
     r"^(hi|hello|hey|yo|hi there|hello there)(\!|\.|\?)*$",
     r"^(good\s+(morning|afternoon|evening))(\!|\.|\?)*$",
     r"^(is\s+anyone\s+(there|around))(\!|\.|\?)*$",
+    r"^(hi|hello)\s+sai(\s+ai)?(\!|\.|\?)*$",
     r"^(hi|hello)\s+santum(\s+ai)?(\!|\.|\?)*$"
 ]
 
 GREETING_RESPONSES = [
-    "Hello! I'm Santum AI, your supportive counselor. I'm here to listen and support you. How are you feeling today?",
+    "Hello! I'm Sai, your supportive companion. I'm here to listen and support you. How are you feeling today?",
     "Hi there! It's good to see you. I'm here whenever you're ready to talk. What's on your mind?",
     "Hello! I'm here and ready to support you in any way I can. How has your day been so far?",
-    "Hi! I'm Santum AI. I'm here to provide a safe space for you. How can I help you today?"
+    "Hi! I'm Sai. I'm here to provide a safe space for you. How can I help you today?"
 ]
 
 class RAGService:
@@ -202,14 +203,15 @@ class RAGService:
         # 3. Reasoning & Routing Result
         classification, standalone_query = router_result
         if use_reasoning is None:
-            use_reasoning = (classification == "complex")
+            # Reasoning is now primarily for RAG-required queries or complex conversational pieces
+            use_reasoning = (classification in ["rag_required", "conversational"])
         
-        # 4. HEURISTIC: Skip retrieval ONLY for pure greetings or basic acknowledgments on first message
-        # Informational queries (FAQ) are now classified as 'complex' by the router to ensure retrieval.
-        skip_retrieval = (classification == "simple") and not chat_history
+        # 4. SELECTIVE RAG: Skip retrieval for greetings and general conversational emotional support
+        # This aligns with the "RAG only when clinically useful" directive.
+        skip_retrieval = (classification in ["greeting", "conversational"])
         
         if skip_retrieval:
-            # Cancel retrieval - we don't need it for basic greetings/acknowledgments
+            # Cancel retrieval - we don't need it
             retrieval_task.cancel()
             
             llm = self.llm_service.get_llm(use_reasoning=use_reasoning, plan_level=plan_level)
@@ -218,15 +220,14 @@ class RAGService:
                 plan_level=plan_level, 
                 happiness=happiness,
                 stress=stress,
-                energy=energy
+                energy=energy,
+                has_context=False # Explicitly no context for conversational/greeting
             )
-            chain = (qa_prompt | llm).with_config({"run_name": "GreetingResponseChain"})
-            
+            chain = (qa_prompt | llm).with_config({"run_name": "ConversationalResponseChain"})
             full_response = ""
             current_output_tokens = 0
-            limit_reached = False
 
-            async for chunk in chain.astream({"input": query, "chat_history": chat_history, "context": "No specific context needed for this greeting."}):
+            async for chunk in chain.astream({"input": query, "chat_history": chat_history, "context": ""}):
                 # 1. Capture text content
                 if chunk.content:
                     full_response += chunk.content
@@ -241,9 +242,8 @@ class RAGService:
                 
                 if meta:
                     current_output_tokens = meta.get("output_tokens", 0)
-                    logger.info(f"GROQ_OUTPUT_METADATA (Greeting): {meta}")
             
-            # Final Calculation: Sum of (User Query) + (AI Response)
+            # Final Calculation
             query_tokens = count_tokens(query)
             if current_output_tokens == 0:
                 current_output_tokens = count_tokens(full_response)
@@ -255,14 +255,28 @@ class RAGService:
                 "status": "completed",
                 "model_used": "reasoning" if use_reasoning else "simple",
                 "plan": plan_level,
-                "mode": "greeting_hardened"
+                "mode": "conversational_optimized"
             }
             yield f"\n\n{json.dumps(metadata)}"
             return
 
         # 5. Wait for Retrieval (if not already finished)
+        # TIERED RAG: Retrieval only happens for 'rag_required'
         try:
+            # Re-define retriever with dynamic k based on Plan
+            k_mapping = {
+                PlanLevel.FREE: 1,
+                PlanLevel.STANDARD: 2,
+                PlanLevel.PREMIUM: 3
+            }
+            dynamic_k = k_mapping.get(plan_level, 1)
+            
+            # Since retrieval_task was already fired with k=5, we can either re-fire 
+            # or just slice the results. Slicing is faster.
             docs = await retrieval_task
+            docs = docs[:dynamic_k] # Apply tiered limit
+            
+            logger.info(f"TIERED_RAG: Retrieved {len(docs)} chunks for {plan_level} plan (k={dynamic_k})")
         except Exception as e:
             logger.error(f"Retrieval Error: {e}")
             docs = []
@@ -287,7 +301,6 @@ class RAGService:
 
         full_response = ""
         current_output_tokens = 0
-        limit_reached = False
 
         async for chunk in chain.astream(
             {"input": query, "chat_history": chat_history, "context": context_str}

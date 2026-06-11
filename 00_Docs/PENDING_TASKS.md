@@ -18,6 +18,8 @@ This document tracks all approved features and improvements.
 *   **[x] Safety Prompt Engineering:** Refined system prompt for empathetic counseling, situational crisis triggers, and clinical boundaries.
 *   **[x] Human Therapist Redirection:** Integrated [Santum.net](https://Santum.net) referral logic into `ModerationService` and `RAGService` for professional care requests.
 *   **[x] Dynamic Plan Limits:** Implemented 80/100/120 word caps for Input/Output across Free/Standard/Premium tiers.
+*   **[x] Selective & Tiered RAG:** Implemented tiered retrieval (k=1/2/3) and conversational bypass (Prop-02).
+*   **[x] Memory Optimization:** Limited recent context to 6 messages to prevent context bloat (Prop-02).
 
 ## 2. Chat History Summarization (Complete)
 *   **[x] Summarization Service:** Implemented using Llama 3 8B.
@@ -35,6 +37,9 @@ This document tracks all approved features and improvements.
     *   [x] Standalone Query Integration: Fixed logic to ensure the rephrased query from the Router is actually used in the final LLM generation.
     *   [x] **Staged Embedding Generation:** Implemented async batching (100 docs) and delays (10s) with logging to handle Gemini rate limits.
     *   [x] Models Cleanup: De-duplicated `ChatMessage` and `ChatRequest` in `app/models/request.py`.
+*   [x] **Prompt Softening:** Softened "Santum.net" recommendation logic to be conditional and clinically relevant.
+*   [x] **Safety Policy Nuance:** Refined moderation policy to distinguish between social anxiety/stress and active crisis. Implemented generalized intent-based classification to prevent false positives for clinical terms like "depression" (Verified).
+*   [x] **Configuration Synchronization:** Added missing environment variable (`GROQ_MODEL_MODERATION`) to `Settings` and `.example.env`.
 *   [x] Streamlit Frontend: Implemented a full-featured testing UI in `frontend/app.py`.
 *   [ ] Tests: Add unit/integration tests for summarization and chat.
 
