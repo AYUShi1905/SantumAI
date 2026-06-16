@@ -90,7 +90,8 @@ class RAGService:
         happiness: float = 5.0,
         stress: float = 5.0,
         energy: float = 5.0,
-        has_context: bool = True
+        has_context: bool = True,
+        follow_up_allowed: bool = True
     ) -> ChatPromptTemplate:
         """Defines the hardened system prompts using the centralized PromptBuilder."""
         
@@ -103,7 +104,7 @@ class RAGService:
         )
         
         # 2. Build System Prompt String
-        system_prompt_str = builder.build(has_context=has_context)
+        system_prompt_str = builder.build(has_context=has_context, follow_up_allowed=follow_up_allowed)
         
         # 3. Assemble LangChain Messages
         qa_messages = []
@@ -206,6 +207,9 @@ class RAGService:
             # Reasoning is now primarily for RAG-required queries or complex conversational pieces
             use_reasoning = (classification in ["rag_required", "conversational"])
         
+        # 4. Natural Follow-up Control: Disable questions for simple greetings
+        follow_up_allowed = (classification != "greeting")
+        
         # 4. SELECTIVE RAG: Skip retrieval for greetings and general conversational emotional support
         # This aligns with the "RAG only when clinically useful" directive.
         skip_retrieval = (classification in ["greeting", "conversational"])
@@ -221,7 +225,8 @@ class RAGService:
                 happiness=happiness,
                 stress=stress,
                 energy=energy,
-                has_context=False # Explicitly no context for conversational/greeting
+                has_context=False, # Explicitly no context for conversational/greeting
+                follow_up_allowed=follow_up_allowed
             )
             chain = (qa_prompt | llm).with_config({"run_name": "ConversationalResponseChain"})
             full_response = ""
@@ -290,7 +295,8 @@ class RAGService:
             happiness=happiness,
             stress=stress,
             energy=energy,
-            has_context=True
+            has_context=True,
+            follow_up_allowed=follow_up_allowed
         )
 
         # Manually format the context from docs
