@@ -17,7 +17,7 @@ class VectorDBService:
             url=settings.QDRANT_URL,
             api_key=settings.QDRANT_API_KEY
         )
-        self.chatbotembeddings = GoogleGenerativeAIEmbeddings(
+        self.embeddings = GoogleGenerativeAIEmbeddings(
             model=settings.GOOGLE_EMBEDDING_MODEL,
             google_api_key=settings.GOOGLE_API_KEY,
             task_type="retrieval_document",
