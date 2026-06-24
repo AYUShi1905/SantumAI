@@ -155,7 +155,10 @@ class RAGService:
         # Define and fire retrieval task (Speculative Search)
         vectorstore = self.vector_db_service.get_vectorstore()
         search_kwargs = {"k": 5}
-        if plan_level != PlanLevel.PREMIUM:
+        
+        # FREE plan only has access to Santum.net (is_cbt_manual == False)
+        # STANDARD and PREMIUM plans have access to both Santum.net and Generalised Anxiety CBT manual content
+        if plan_level == PlanLevel.FREE:
             search_kwargs["filter"] = rest.Filter(
                 must=[
                     rest.FieldCondition(

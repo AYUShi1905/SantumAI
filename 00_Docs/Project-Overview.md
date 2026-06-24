@@ -22,8 +22,8 @@ The app will serve as an extension to an existing counseling platform, `santum.n
 3. **Subscriptions:** Paid through the existing Santum.net setup. The PWA will check if the user has an active AI subscription before letting them chat.
 
 ## Technical Architecture
-- **Frontend:** React.js (built on an "Amigo GPT" template, customized to match Santum's branding).
-- **Backend (API/AI Logic):** Dedicated Node.js server for handling the OpenAI integration securely, managing chat sessions, token counting, and RAG processing.
+- **Frontend:** Next.js for production (customized for Santum's branding) and Streamlit for sandbox testing.
+- **Backend (API/AI Logic):** Dedicated Python FastAPI server for handling Groq (Llama 3) and Google Gemini (embedding) integrations securely, managing chat sessions, token counting, and RAG processing.
 - **Master Database/Auth:** WordPress (`santum.net`), utilizing custom plugins (PWA AI), JWT authentication, and Paid Memberships Pro for subscriptions.
 
 ## Timeline & Effort
@@ -31,4 +31,4 @@ The app will serve as an extension to an existing counseling platform, `santum.n
 - **Deadline:** May 21, 2026
 
 ## Summary for the Developer/Owner
-You are building an AI chatbot frontend (React) and a middleware backend (Node.js) that acts as a bridge between OpenAI and the client's existing WordPress user/payment database. Your main challenges will be syncing token balances, ensuring the subscription gate works flawlessly, and making sure the AI acts safely as a therapist using the provided CBT manuals (RAG).
+You are building an AI chatbot frontend (Next.js/Streamlit) and a middleware backend (Python FastAPI) that acts as a bridge between Groq/Gemini and the client's existing WordPress user/payment database. Your main challenges will be syncing token balances, ensuring the subscription gate works flawlessly, and making sure the AI acts safely as a therapist using the provided CBT manuals (RAG).

@@ -88,12 +88,50 @@ async def main():
     
     # Define files to ingest
     tasks = [
+        # Platform FAQ Data (Non-CBT)
         {
-            "path": "00_Docs/Data_by_client/santum_ai_vector_embedding_index.json",
+            "path": "00_Docs/RAG_Data/01_Embed_Ready/santum_ai_vector_embedding_index.json",
             "is_cbt_manual": False
         },
+        # CBT Workbook Data
         {
-            "path": "new-data-by-client/santum_ai_cbt_gad_vector_index_v2.json",
+            "path": "00_Docs/RAG_Data/01_Embed_Ready/santum_ai_cbt_gad_vector_index_v2.json",
+            "is_cbt_manual": True
+        },
+        {
+            "path": "00_Docs/RAG_Data/01_Embed_Ready/santum_ai_cbt_assertiveness_vector_index_v1_EMBED_READY.json",
+            "is_cbt_manual": True
+        },
+        {
+            "path": "00_Docs/RAG_Data/01_Embed_Ready/santum_ai_cbt_bipolar_support_vector_index_v1_EMBED_READY.json",
+            "is_cbt_manual": True
+        },
+        {
+            "path": "00_Docs/RAG_Data/01_Embed_Ready/santum_ai_cbt_body_acceptance_vector_index_v1_EMBED_READY.json",
+            "is_cbt_manual": True
+        },
+        {
+            "path": "00_Docs/RAG_Data/01_Embed_Ready/santum_ai_cbt_body_image_vector_index_v1_EMBED_READY.json",
+            "is_cbt_manual": True
+        },
+        {
+            "path": "00_Docs/RAG_Data/01_Embed_Ready/santum_ai_cbt_depression_vector_index_v1_EMBED_READY.json",
+            "is_cbt_manual": True
+        },
+        {
+            "path": "00_Docs/RAG_Data/01_Embed_Ready/santum_ai_cbt_eating_disorder_recovery_vector_index_v1_EMBED_READY.json",
+            "is_cbt_manual": True
+        },
+        {
+            "path": "00_Docs/RAG_Data/01_Embed_Ready/santum_ai_cbt_panic_vector_index_v3_EMBED_READY.json",
+            "is_cbt_manual": True
+        },
+        {
+            "path": "00_Docs/RAG_Data/01_Embed_Ready/santum_ai_cbt_self_esteem_vector_index_v1_EMBED_READY.json",
+            "is_cbt_manual": True
+        },
+        {
+            "path": "00_Docs/RAG_Data/01_Embed_Ready/santum_ai_cbt_social_anxiety_vector_index_v1_EMBED_READY.json",
             "is_cbt_manual": True
         }
     ]

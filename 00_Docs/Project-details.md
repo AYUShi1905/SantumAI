@@ -11,8 +11,8 @@ A standalone AI Counselling Progressive Web Application (PWA) providing emotiona
 - **Credit System:**
     - `usermeta` (`_pwa_credit`) for current balance
     - `credit_log` table for transaction history
-- **Frontend:** React.js
-- **Backend:** Node.js / WordPress (as central system)
+- **Frontend:** Next.js (production) / Streamlit (testing)
+- **Backend:** FastAPI (Python) / WordPress (as central system)
 
 ---
 

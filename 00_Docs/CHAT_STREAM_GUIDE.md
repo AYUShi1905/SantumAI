@@ -35,8 +35,8 @@ To save tokens and latency, queries containing only 1-2 words (e.g., "Hello", "H
 
 ### D. Plan-Aware Retrieval (RAG)
 If retrieval is triggered:
-- **Free/Standard:** Filters out documents marked as `is_cbt_manual: true`.
-- **Premium:** Has access to the full knowledge base, including specialized CBT manuals.
+- **Free:** Filters out documents marked as `is_cbt_manual: true` (only has access to Santum.net FAQ).
+- **Standard/Premium:** Has access to the full knowledge base, including specialized CBT manuals.
 
 ### E. Balanced Empathy Prompting
 The response length and tone are dynamically adjusted:
