@@ -15,14 +15,13 @@ class LLMProviderService:
         self.counseling_model = settings.MODEL_COUNSELING
         self.background_model = settings.MODEL_BACKGROUND
 
-    def get_llm(self, use_reasoning: bool = False, streaming: bool = True, plan_level: Optional[PlanLevel] = None) -> ChatGroq:
+    def get_llm(self, use_reasoning: bool = False, streaming: bool = True) -> ChatGroq:
         """
         Returns a configured ChatGroq instance.
         
         Args:
             use_reasoning: If True, uses the Counseling (70B) model; otherwise Background (8B).
             streaming: Whether to enable streaming responses.
-            plan_level: The user's subscription plan.
         """
         model_name = self.counseling_model if use_reasoning else self.background_model
         

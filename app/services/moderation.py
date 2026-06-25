@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class ModerationService:
     """
     Service to detect abusive or unsafe content in user messages.
-    Uses GPT-OSS-Safeguard-20B for policy-based moderation.
+    Uses Groq Llama 3 8B for policy-based moderation.
     """
 
     # LAYER 1: Fast deterministic rules based on client's rule_engine_safety_pack.json

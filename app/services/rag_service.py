@@ -8,6 +8,8 @@ from langchain_classic.chains import create_history_aware_retriever, create_retr
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import BaseMessage
+from langsmith import traceable
+
 
 from qdrant_client.http import models as rest
 from services.llm_provider import LLMProviderService
@@ -119,6 +121,7 @@ class RAGService:
         
         return ChatPromptTemplate.from_messages(qa_messages)
 
+    @traceable(name="Santum_Chat_Request")
     async def get_streaming_response(
         self, 
         query: str, 
@@ -221,7 +224,7 @@ class RAGService:
             # Cancel retrieval - we don't need it
             retrieval_task.cancel()
             
-            llm = self.llm_service.get_llm(use_reasoning=use_reasoning, plan_level=plan_level)
+            llm = self.llm_service.get_llm(use_reasoning=use_reasoning)
             qa_prompt = self._get_prompts(
                 history_summary=history_summary, 
                 plan_level=plan_level, 

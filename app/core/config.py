@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     MODEL_BACKGROUND: str = "llama-3.1-8b-instant"   # Summarization, memory, moderation (GPT-4.1 Mini in Production)
     MODEL_ROUTING: str = "llama-3.1-8b-instant"      # Tags, routing, analytics (GPT-4.1 Nano in Production)
 
-    # Groq LLMs (Legacy - Keeping for backward compatibility temporarily)
+    # Groq API Configuration (Primary LLM Provider)
     GROQ_API_KEY: str
     GROQ_MODEL_MODERATION: str = "llama-3.1-8b-instant" # Safety classification (GPT-4.1 Mini in Production)
 

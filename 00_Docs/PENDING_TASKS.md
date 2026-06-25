@@ -41,6 +41,7 @@ This document tracks all approved features and improvements.
 *   [x] **Prompt Softening:** Softened "Santum.net" recommendation logic to be conditional and clinically relevant.
 *   [x] **Safety Policy Nuance:** Refined moderation policy to distinguish between social anxiety/stress and active crisis. Implemented generalized intent-based classification to prevent false positives for clinical terms like "depression" (Verified).
 *   [x] **Configuration Synchronization:** Added missing environment variable (`GROQ_MODEL_MODERATION`) to `Settings` and `.example.env`.
+*   [x] **LangSmith Trace Bundling:** Wrapped RAG service request flows in a `@traceable` decorator to bundle parallel traces under a single parent run.
 *   [x] Streamlit Frontend: Implemented a full-featured testing UI in `frontend/app.py`.
 *   [ ] Tests: Add unit/integration tests for summarization and chat.
 
