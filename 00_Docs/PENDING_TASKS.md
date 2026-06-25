@@ -43,7 +43,9 @@ This document tracks all approved features and improvements.
 *   [x] **Configuration Synchronization:** Added missing environment variable (`GROQ_MODEL_MODERATION`) to `Settings` and `.example.env`.
 *   [x] **LangSmith Trace Bundling:** Wrapped RAG service request flows in a `@traceable` decorator to bundle parallel traces under a single parent run.
 *   [x] Streamlit Frontend: Implemented a full-featured testing UI in `frontend/app.py`.
-*   [ ] Tests: Add unit/integration tests for summarization and chat.
+*   [x] Tests: Add unit/integration tests for summarization and chat.
+*   [x] **Pre-deployment Check Script:** Implemented `check_project.py` in the `app` folder to compile python files and run the test suite.
+*   [x] **CI/CD Workflow:** Added `.github/workflows/ci.yml` to run tests and trigger Render deployment hook only for backend changes under `app/`.
 
 ## 4. Security & Prompt Hardening (Complete)
 *   **[x] Abuse Detection Layer:** Implement a dedicated moderation layer (e.g., GPT-OSS-Safeguard-20B) to filter abusive content before it reaches the counselor model.
