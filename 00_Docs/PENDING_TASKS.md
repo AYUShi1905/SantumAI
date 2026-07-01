@@ -49,12 +49,14 @@ This document tracks all approved features and improvements.
 
 ## 4. Security & Prompt Hardening (Complete)
 *   **[x] Abuse Detection Layer:** Implement a dedicated moderation layer (e.g., GPT-OSS-Safeguard-20B) to filter abusive content before it reaches the counselor model.
-*   **[ ] Session Guardrails:** Implement backend logic to verify session-start safety requirements (e.g., disclaimer acknowledgment state).
+*   **[x] Session Guardrails:** (Handled on Frontend) Disclaimer acknowledgment state is enforced directly by the client UI.
 *   **[x] Advanced Hardening:** Implement full security-first prompt architecture to prevent jailbreaking and instruction disclosure (Prop-01).
 *   **[x] Format Enforcement:** Integrate strict Markdown and empathy-first response rules into the `RAGService`.
 
 ## 5. Future Proposals (Planned)
-*   **[ ] VectifyAI PageIndex:** Research into advanced PDF indexing (See `00_Docs/01_Future_Proposals/VectifyAI_PageIndex_Research.md`).
+*   **[ ] RAG Tier Restrictions:** Implement metadata-based RAG filtering (`chunk_type` check for `cbt_exercise` and `worksheet_instruction`) to trigger soft upgrade prompts on the Free tier. (See [RAG_Tier_Restrictions_Plan.md](file:///home/ubuntu/Ayushi/SantumAI/00_Docs/RAG_Data/RAG_Tier_Restrictions_Plan.md)).
+*   **[ ] RAG Data Embedding:** Run the Gemini-to-Qdrant embedding pipeline for the new JSON RAG dataset in `01_Embed_Ready` using metadata pruning and rate-limiting safeguards. (See [RAG_Embedding_Plan.md](file:///home/ubuntu/Ayushi/SantumAI/00_Docs/RAG_Data/RAG_Embedding_Plan.md)).
+*   **[ ] Domain-Based Retrieval:** Update the `RouterService` to classify query domains (e.g., `cbt_panic`, `cbt_depression`) and apply Qdrant metadata filters dynamically to restrict RAG retrieval to the relevant domain.
 
 ---
-*Updated: May 11, 2026*
+*Updated: July 1, 2026*

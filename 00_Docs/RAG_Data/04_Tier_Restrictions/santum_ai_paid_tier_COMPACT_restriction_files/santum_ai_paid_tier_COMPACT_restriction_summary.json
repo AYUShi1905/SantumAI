@@ -1,0 +1,65 @@
+[
+  {
+    "pack": "Assertiveness",
+    "source_file": "santum_ai_cbt_assertiveness_vector_index_v1_EMBED_READY.json",
+    "total_chunks": 142,
+    "restricted_chunks": 46,
+    "free_allowed_chunks": 96
+  },
+  {
+    "pack": "Bipolar Support / Keeping Your Balance",
+    "source_file": "santum_ai_cbt_bipolar_support_vector_index_v1_EMBED_READY.json",
+    "total_chunks": 86,
+    "restricted_chunks": 38,
+    "free_allowed_chunks": 48
+  },
+  {
+    "pack": "Body Acceptance / BDD",
+    "source_file": "santum_ai_cbt_body_acceptance_vector_index_v1_EMBED_READY.json",
+    "total_chunks": 146,
+    "restricted_chunks": 46,
+    "free_allowed_chunks": 100
+  },
+  {
+    "pack": "Body Image / Caring Less About Your Looks",
+    "source_file": "santum_ai_cbt_body_image_vector_index_v1_EMBED_READY.json",
+    "total_chunks": 116,
+    "restricted_chunks": 47,
+    "free_allowed_chunks": 69
+  },
+  {
+    "pack": "Depression / Back from the Bluez",
+    "source_file": "santum_ai_cbt_depression_vector_index_v1_EMBED_READY.json",
+    "total_chunks": 112,
+    "restricted_chunks": 34,
+    "free_allowed_chunks": 78
+  },
+  {
+    "pack": "Eating Disorder Recovery",
+    "source_file": "santum_ai_cbt_eating_disorder_recovery_vector_index_v1_EMBED_READY.json",
+    "total_chunks": 184,
+    "restricted_chunks": 98,
+    "free_allowed_chunks": 86
+  },
+  {
+    "pack": "Generalised Anxiety / What Me Worry",
+    "source_file": "santum_ai_cbt_gad_vector_index_v1_EMBED_READY.json",
+    "total_chunks": 126,
+    "restricted_chunks": 45,
+    "free_allowed_chunks": 81
+  },
+  {
+    "pack": "Self-Esteem",
+    "source_file": "santum_ai_cbt_self_esteem_vector_index_v1_EMBED_READY.json",
+    "total_chunks": 308,
+    "restricted_chunks": 0,
+    "free_allowed_chunks": 308
+  },
+  {
+    "pack": "Social Anxiety",
+    "source_file": "santum_ai_cbt_social_anxiety_vector_index_v1_EMBED_READY.json",
+    "total_chunks": 162,
+    "restricted_chunks": 105,
+    "free_allowed_chunks": 57
+  }
+]
