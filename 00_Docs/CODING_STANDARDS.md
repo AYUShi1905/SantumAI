@@ -27,7 +27,7 @@ app/
 ├── services/              # Business Logic Layer (The "Brain")
 │   ├── rag_service.py     # LangChain & RAG orchestration
 │   ├── vector_db.py       # Qdrant client & semantic search logic
-│   ├── llm_provider.py    # OpenAI/Groq wrappers & model logic
+│   ├── llm_provider.py    # OpenAI wrapper & model logic
 │   ├── processor.py       # PDF parsing & text chunking logic
 │   └── prompt_builder.py  # Centralized persona & security prompt logic
 ├── models/                # Data Schemas (Pydantic)

@@ -20,5 +20,5 @@
 *   **Restriction:** Do **NOT** include frontend components in deployment guides, prerequisite documentation, or architectural overviews unless explicitly instructed to do so. Focus all production-related efforts exclusively on the FastAPI backend.
 
 ## 7. LLM Provider Strategy
-*   **Mandate:** **Groq** is the primary LLM provider and acts as a high-performance **substitute for OpenAI**. 
-*   **Constraint:** Although some internal docs mention future OpenAI (GPT-4) migration, the current production implementation **MUST** stay focused on Groq. All documentation, environment variables, and code changes should prioritize Groq's infrastructure and Llama 3 models.
+*   **Mandate:** **OpenAI** is the primary LLM provider.
+*   **Constraint:** The production implementation uses OpenAI's GPT-4.1 model family (including `gpt-4.1`, `gpt-4.1-mini`, and `gpt-4.1-nano`). All documentation, environment variables, and code changes must prioritize OpenAI's infrastructure.

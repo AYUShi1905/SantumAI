@@ -11,13 +11,13 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: str
     GOOGLE_EMBEDDING_MODEL: str = "gemini-embedding-001"
 
-    MODEL_COUNSELING: str = "llama-3.3-70b-versatile"  # Main counselling response (GPT-4.1 in Production)
-    MODEL_BACKGROUND: str = "llama-3.1-8b-instant"   # Summarization, memory, moderation (GPT-4.1 Mini in Production)
-    MODEL_ROUTING: str = "llama-3.1-8b-instant"      # Tags, routing, analytics (GPT-4.1 Nano in Production)
+    MODEL_COUNSELING: str = "gpt-4.1"         # Main counselling response
+    MODEL_BACKGROUND: str = "gpt-4.1-mini"     # Summarization, memory
+    MODEL_ROUTING: str = "gpt-4.1-nano"       # Tags, routing, analytics
+    MODEL_MODERATION: str = "gpt-4.1-mini"     # Safety classification
 
-    # Groq API Configuration (Primary LLM Provider)
-    GROQ_API_KEY: str
-    GROQ_MODEL_MODERATION: str = "llama-3.1-8b-instant" # Safety classification (GPT-4.1 Mini in Production)
+    # OpenAI API Configuration
+    OPENAI_API_KEY: str
 
     # App Settings
     PROJECT_NAME: str = "Santum AI RAG Service"

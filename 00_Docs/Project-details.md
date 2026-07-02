@@ -1,7 +1,7 @@
 # Project Overview: Santum AI PWA
 
 ## Project Summary
-A standalone AI Counselling Progressive Web Application (PWA) providing emotional-wellbeing support. Currently powered by Llama 3 (via Groq) for high-performance inference, with future migration to GPT-4.1 planned. The system includes user-friendly registration, subscription flows, a token system, and deep API integration.
+A standalone AI Counselling Progressive Web Application (PWA) providing emotional-wellbeing support. Powered by OpenAI's GPT-4.1 model family for high-performance inference. The system includes user-friendly registration, subscription flows, a token system, and deep API integration.
 
 ## Core Technical Stack
 - **PWA AI:** Custom Plugin

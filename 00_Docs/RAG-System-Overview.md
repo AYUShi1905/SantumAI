@@ -10,7 +10,7 @@ A high-performance, scalable Python-based RAG (Retrieval-Augmented Generation) m
 | **Orchestration** | **LangChain** | Standardizes the "Chain" of logic between the user, the database, and the LLM. |
 | **Vector Database** | **Qdrant** | Production-grade, Rust-based engine for sub-10ms semantic search. |
 | **Embedding Model** | **Google Gemini (004)** | High-quality, fast, and cost-effective embeddings with a 768-dim output. |
-| **LLM (Brain)** | **Llama 3 (via Groq)** | Current primary LLM for all reasoning; ultra-fast inference. (OpenAI GPT-4.1 migration planned). |
+| **LLM (Brain)** | **OpenAI GPT-4.1 Family** | Primary LLM for all reasoning; high quality empathy and context tracking. |
 
 ## 3. Data Processing Flow (Ingestion)
 *This happens once when new manuals are added.*
@@ -28,7 +28,7 @@ A high-performance, scalable Python-based RAG (Retrieval-Augmented Generation) m
     - **SystemPromptBuilder** constructs the modular system prompt (Persona, Security, Markdown).
     - LangChain merges the prompt with retrieved context and history.
 4.  **Streaming Inference:** 
-    - The LLM (Groq/OpenAI) begins generating the response.
+    - The LLM (OpenAI) begins generating the response.
     - FastAPI streams text "chunks" to Next.js in real-time.
 5.  **Final Metadata Chunk:** 
     - Once the response is finished, FastAPI sends one final "metadata" packet containing the `total_tokens` (Input + Output).
@@ -46,5 +46,5 @@ A high-performance, scalable Python-based RAG (Retrieval-Augmented Generation) m
 
 ## 6. Key Advantages
 - **Independence:** The Python AI logic is decoupled from the Next.js frontend, allowing it to be scaled or upgraded separately.
-- **Speed:** By using Groq and Qdrant, the "thinking time" of the AI is minimized for a better user experience in counseling.
-- **Flexibility:** LangChain makes it trivial to switch between Jina/OpenAI for embeddings or Groq/GPT-4 for the brain.
+- **Speed:** By using OpenAI's high-speed GPT-4.1 model family and Qdrant, the "thinking time" of the AI is minimized for a better user experience in counseling.
+- **Flexibility:** LangChain makes it trivial to switch or customize model configurations for embeddings or the main brain.

@@ -1,13 +1,13 @@
 # Santum AI PWA - Project Overview
 
 ## What is this project?
-The **Santum AI PWA** is a standalone Progressive Web Application (PWA) designed to provide users with emotional-wellbeing support through text-based counseling conversations. It acts as an AI therapist, currently using Llama 3 (via Groq) for high-performance inference, with plans to migrate to OpenAI's GPT-4.1 in future updates.
+The **Santum AI PWA** is a standalone Progressive Web Application (PWA) designed to provide users with emotional-wellbeing support through text-based counseling conversations. It acts as an AI therapist, powered by OpenAI's GPT-4.1 model family for high-performance inference.
 
 The app will serve as an extension to an existing counseling platform, `santum.net`, but will run as its own standalone web app with its own branding, installable on mobile devices.
 
 ## Core Features & Functionality
-- **AI Counseling Chat:** Users can text chat with an AI for emotional support. Simple interactions (greetings, FAQ) are handled by a faster model (**Llama 3 8B** via Groq), while deeper, complex emotional reasoning uses a more advanced model (**Llama 3 70B** via Groq).
-- **Future Migration:** Integration with OpenAI GPT-4.1 mini and GPT-4.1 is planned for future phases to handle increasingly complex reasoning tasks.
+- **AI Counseling Chat:** Users can text chat with an AI for emotional support. Simple interactions (greetings, FAQ) are handled by a faster model (**gpt-4.1-mini**), while deeper, complex emotional reasoning uses the advanced reasoning model (**gpt-4.1**).
+- **Technical Model Pipeline:** Utilizing GPT-4.1, GPT-4.1-mini, and GPT-4.1-nano to handle counseling, moderation, and routing respectively.
 - **RAG (Retrieval-Augmented Generation):** The AI will be trained/fed with specific psychological content (like CBT manuals). Free users get basic content, while premium users get access to deeper, specialized CBT content.
 - **Safety First:** The app includes crisis resources, mood check-ins, safety disclaimers, abuse detection, and a "Talk to a human therapist" escalation button.
 - **Cross-Platform:** Built as a PWA, meaning it works as a website but can be installed on phones/desktops like a native app. Fully responsive across all devices and browsers.
@@ -23,7 +23,7 @@ The app will serve as an extension to an existing counseling platform, `santum.n
 
 ## Technical Architecture
 - **Frontend:** Next.js for production (customized for Santum's branding) and Streamlit for sandbox testing.
-- **Backend (API/AI Logic):** Dedicated Python FastAPI server for handling Groq (Llama 3) and Google Gemini (embedding) integrations securely, managing chat sessions, token counting, and RAG processing.
+- **Backend (API/AI Logic):** Dedicated Python FastAPI server for handling OpenAI (GPT-4.1) and Google Gemini (embedding) integrations securely, managing chat sessions, token counting, and RAG processing.
 - **Master Database/Auth:** WordPress (`santum.net`), utilizing custom plugins (PWA AI), JWT authentication, and Paid Memberships Pro for subscriptions.
 
 ## Timeline & Effort
@@ -31,4 +31,4 @@ The app will serve as an extension to an existing counseling platform, `santum.n
 - **Deadline:** May 21, 2026
 
 ## Summary for the Developer/Owner
-You are building an AI chatbot frontend (Next.js/Streamlit) and a middleware backend (Python FastAPI) that acts as a bridge between Groq/Gemini and the client's existing WordPress user/payment database. Your main challenges will be syncing token balances, ensuring the subscription gate works flawlessly, and making sure the AI acts safely as a therapist using the provided CBT manuals (RAG).
+You are building an AI chatbot frontend (Next.js/Streamlit) and a middleware backend (Python FastAPI) that acts as a bridge between OpenAI/Gemini and the client's existing WordPress user/payment database. Your main challenges will be syncing token balances, ensuring the subscription gate works flawlessly, and making sure the AI acts safely as a therapist using the provided CBT manuals (RAG).

@@ -252,7 +252,7 @@ class RAGService:
                     meta = chunk.response_metadata.get("token_usage")
                 
                 if meta:
-                    current_output_tokens = meta.get("output_tokens", 0)
+                    current_output_tokens = meta.get("output_tokens") or meta.get("completion_tokens") or 0
             
             # Final Calculation
             query_tokens = count_tokens(query)
@@ -330,8 +330,8 @@ class RAGService:
                 meta = chunk.response_metadata.get("token_usage")
             
             if meta:
-                current_output_tokens = meta.get("output_tokens", 0)
-                logger.info(f"GROQ_OUTPUT_METADATA: {meta}")
+                current_output_tokens = meta.get("output_tokens") or meta.get("completion_tokens") or 0
+                logger.info(f"OPENAI_OUTPUT_METADATA: {meta}")
 
         # Final Calculation: Sum of (User Query) + (AI Response)
         # This explicitly ignores RAG Data, System Prompt, and History overhead.

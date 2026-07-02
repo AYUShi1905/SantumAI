@@ -1,7 +1,7 @@
 from typing import Literal, Tuple, Dict, Any, Optional
 import json
 import logging
-from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from core.config import settings
@@ -17,9 +17,9 @@ class RouterService:
     def __init__(self):
         # Aligned with AI Architecture Summary 2.pdf
         # Use the dedicated routing model
-        self.classifier_llm = ChatGroq(
-            api_key=settings.GROQ_API_KEY,
-            model_name=settings.MODEL_ROUTING,
+        self.classifier_llm = ChatOpenAI(
+            api_key=settings.OPENAI_API_KEY,
+            model=settings.MODEL_ROUTING,
             temperature=0,
             max_tokens=500
         )

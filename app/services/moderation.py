@@ -2,7 +2,7 @@ from typing import Tuple, Optional
 import json
 import logging
 import re
-from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 from core.config import settings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class ModerationService:
     """
     Service to detect abusive or unsafe content in user messages.
-    Uses Groq Llama 3 8B for policy-based moderation.
+    Uses OpenAI GPT-4.1-mini for policy-based moderation.
     """
 
     # LAYER 1: Fast deterministic rules based on client's rule_engine_safety_pack.json
@@ -43,9 +43,9 @@ class ModerationService:
     }
 
     def __init__(self):
-        self.llm = ChatGroq(
-            api_key=settings.GROQ_API_KEY,
-            model_name=settings.GROQ_MODEL_MODERATION,
+        self.llm = ChatOpenAI(
+            api_key=settings.OPENAI_API_KEY,
+            model=settings.MODEL_MODERATION,
             temperature=0,
             max_tokens=500  # Allowing some tokens for reasoning if needed
         )
