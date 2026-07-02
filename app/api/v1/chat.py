@@ -8,7 +8,6 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 import logging
 import json
 from services.moderation import ModerationService
-import time 
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger(__name__)
@@ -33,7 +32,6 @@ async def chat_rag_stream(request: ChatRequest):
     Streams a response grounded in counseling manuals retrieved from Qdrant.
     Parallelized orchestration (Moderation, Routing, Retrieval) handled in RAGService.
     """
-    start_time = time.time()
 
     # 0. Validate Input Word Count based on Plan
     word_count = len(request.message.split())
@@ -69,13 +67,4 @@ async def chat_rag_stream(request: ChatRequest):
         energy=request.energy
     )
 
-    async def ttft_logging_wrapper():
-        first_token_sent = False
-        async for chunk in generator:
-            if not first_token_sent and chunk:
-                ttft = time.time() - start_time
-                logger.info(f"BACKEND_TTFT: {ttft:.4f}s | Query: {request.message[:50]}...")
-                first_token_sent = True
-            yield chunk
-
-    return StreamingResponse(ttft_logging_wrapper(), media_type="text/event-stream")
+    return StreamingResponse(generator, media_type="text/event-stream")

@@ -286,8 +286,6 @@ class RAGService:
             # or just slice the results. Slicing is faster.
             docs = await retrieval_task
             docs = docs[:dynamic_k] # Apply tiered limit
-            
-            logger.info(f"TIERED_RAG: Retrieved {len(docs)} chunks for {plan_level} plan (k={dynamic_k})")
         except Exception as e:
             logger.error(f"Retrieval Error: {e}")
             docs = []
@@ -331,7 +329,6 @@ class RAGService:
             
             if meta:
                 current_output_tokens = meta.get("output_tokens") or meta.get("completion_tokens") or 0
-                logger.info(f"OPENAI_OUTPUT_METADATA: {meta}")
 
         # Final Calculation: Sum of (User Query) + (AI Response)
         # This explicitly ignores RAG Data, System Prompt, and History overhead.
