@@ -37,7 +37,7 @@ jobs:
           QDRANT_URL: "https://mock.qdrant.io"
           COLLECTION_NAME: "mock_collection"
           GOOGLE_API_KEY: "mock_google_key"
-          GROQ_API_KEY: "mock_groq_key"
+          OPENAI_API_KEY: "mock_openai_key"
         run: |
           cd app
           python check_project.py
