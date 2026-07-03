@@ -47,7 +47,8 @@ class ModerationService:
             api_key=settings.OPENAI_API_KEY,
             model=settings.MODEL_MODERATION,
             temperature=0,
-            max_tokens=500  # Allowing some tokens for reasoning if needed
+            max_tokens=500,  # Allowing some tokens for reasoning if needed
+            model_kwargs={"response_format": {"type": "json_object"}}
         )
         
         self.system_policy = SystemPromptBuilder.get_moderation_policy()

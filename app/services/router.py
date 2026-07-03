@@ -21,7 +21,8 @@ class RouterService:
             api_key=settings.OPENAI_API_KEY,
             model=settings.MODEL_ROUTING,
             temperature=0,
-            max_tokens=500
+            max_tokens=500,
+            model_kwargs={"response_format": {"type": "json_object"}}
         )
         
         self.system_prompt = (
@@ -30,7 +31,7 @@ class RouterService:
             "1. CLASSIFY: Determine the message type.\n"
             "   - 'greeting': ONLY for pure greetings (hi, hello) or basic acknowledgments (ok, thanks).\n"
             "   - 'conversational': For emotional support, venting, sharing feelings, and general chat where the user does NOT ask for specific tools, exercises, or policies. No RAG is needed here.\n"
-            "   - 'rag_required': For EXPLICIT requests for CBT tools, exercises, grounding techniques, Santum platform policies, clinical advice, or Santum AI identity/capabilities.\n"
+            "   - 'rag_required': For EXPLICIT requests for CBT tools, exercises, grounding techniques, Santum platform policies, clinical advice, or Santum AI identity/capabilities (including questions about what Santum is or who created it).\n"
             "2. REPHRASE: Based on the chat history and the latest message, formulate a standalone query that represents the user's intent and can be used for document retrieval. "
             "The query must be from the USER'S perspective (e.g., 'How to manage stress' or 'I am feeling anxious') and NOT an AI response or a question directed at the user. "
             "If the query is already standalone, return it as is.\n"
@@ -42,18 +43,30 @@ class RouterService:
             "   - 'cbt_body_image': Body image concerns, negative self-image related to appearance.\n"
             "   - 'cbt_depression': Depression workbook, feeling low, lethargic, hopeless, behavioral activation.\n"
             "   - 'cbt_eating_disorder': Eating disorder recovery, purging, bingeing, body-checking, recovery worksheets.\n"
-            "   - 'cbt_gad': Generalized anxiety disorder workbook, chronic worrying, worry postponement, what-if thoughts.\n"
-            "   - 'cbt_panic': Panic workbook, panic attacks, physical anxiety symptoms, hyperventilation, interoceptive exposure.\n"
+            "   - 'cbt_gad': Generalized anxiety disorder workbook, chronic worrying, worry postponement, what-if thoughts, breathing or grounding exercises.\n"
+            "   - 'cbt_panic': Panic workbook, panic attacks, physical anxiety symptoms, hyperventilation, interoceptive exposure, grounding techniques (like 5-4-3-2-1), deep breathing exercises.\n"
             "   - 'cbt_self_esteem': Self-esteem workbook, core beliefs, negative self-talk, self-compassion.\n"
             "   - 'cbt_social_anxiety': Social anxiety workbook, fear of judgment, avoidance of social situations, safety behaviors.\n"
-            "   - 'platform': Platform FAQ, Santum Facts, app/service features, therapist details, subscription queries.\n"
+            "   - 'platform': Platform FAQ, Santum Facts, app/service features, therapist details, subscription queries, developer info.\n"
             "   - 'none': Greetings, general chit-chat, ambiguous topic, or general/unrelated counseling query.\n\n"
+            "FEW-SHOT EXAMPLES:\n"
+            "Example 1:\n"
+            "Input: 'What is Santum AI?'\n"
+            "Output: {\"classification\": \"rag_required\", \"standalone_query\": \"What is Santum AI?\", \"domain\": \"platform\"}\n\n"
+            "Example 2:\n"
+            "Input: 'Who built Santum?'\n"
+            "Output: {\"classification\": \"rag_required\", \"standalone_query\": \"Who built Santum?\", \"domain\": \"platform\"}\n\n"
+            "Example 3:\n"
+            "Input: 'Can you show me a grounding technique?'\n"
+            "Output: {\"classification\": \"rag_required\", \"standalone_query\": \"grounding exercises for anxiety\", \"domain\": \"cbt_panic\"}\n\n"
+            "Example 4:\n"
+            "Input: 'I'm feeling really stressed about exams.'\n"
+            "Output: {\"classification\": \"conversational\", \"standalone_query\": \"stressed about exams\", \"domain\": \"none\"}\n\n"
             "OUTPUT FORMAT:\n"
-            "Return ONLY a JSON object with three fields:\n"
+            "Provide a JSON object with these three fields:\n"
             "- \"classification\": \"greeting\" | \"conversational\" | \"rag_required\"\n"
             "- \"standalone_query\": \"string\"\n"
-            "- \"domain\": \"cbt_assertiveness\" | \"cbt_bipolar\" | \"cbt_body_acceptance\" | \"cbt_body_image\" | \"cbt_depression\" | \"cbt_eating_disorder\" | \"cbt_gad\" | \"cbt_panic\" | \"cbt_self_esteem\" | \"cbt_social_anxiety\" | \"platform\" | \"none\"\n\n"
-            "Return ONLY the JSON object."
+            "- \"domain\": \"cbt_assertiveness\" | \"cbt_bipolar\" | \"cbt_body_acceptance\" | \"cbt_body_image\" | \"cbt_depression\" | \"cbt_eating_disorder\" | \"cbt_gad\" | \"cbt_panic\" | \"cbt_self_esteem\" | \"cbt_social_anxiety\" | \"platform\" | \"none\""
         )
         
         self.prompt = ChatPromptTemplate.from_messages([
