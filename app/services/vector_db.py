@@ -1,5 +1,5 @@
 from langchain_qdrant import QdrantVectorStore
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as rest
 from core.config import settings
@@ -9,7 +9,7 @@ from langchain_core.documents import Document
 class VectorDBService:
     """
     Service for interacting with Qdrant Vector Database.
-    Uses Google Gemini (text-embedding-004) for generating embeddings.
+    Uses OpenAI (text-embedding-3-small) for generating embeddings.
     """
 
     def __init__(self):
@@ -17,15 +17,13 @@ class VectorDBService:
             url=settings.QDRANT_URL,
             api_key=settings.QDRANT_API_KEY
         )
-        self.embeddings = GoogleGenerativeAIEmbeddings(
-            model=settings.GOOGLE_EMBEDDING_MODEL,
-            google_api_key=settings.GOOGLE_API_KEY,
-            task_type="retrieval_document",
-            output_dimensionality=768
+        self.embeddings = OpenAIEmbeddings(
+            model=settings.OPENAI_EMBEDDING_MODEL,
+            openai_api_key=settings.OPENAI_API_KEY
         )
         # Set custom name for LangSmith tracing
         try:
-            self.embeddings.name = "GoogleGeminiEmbedder"
+            self.embeddings.name = "OpenAIEmbedder"
         except Exception:
             pass
         self.collection_name = settings.COLLECTION_NAME
@@ -37,12 +35,32 @@ class VectorDBService:
             collections = self.client.get_collections().collections
             exists = any(c.name == self.collection_name for c in collections)
             
+            if exists:
+                collection_info = self.client.get_collection(self.collection_name)
+                vectors_config = collection_info.config.params.vectors
+                if hasattr(vectors_config, "size"):
+                    existing_size = vectors_config.size
+                elif isinstance(vectors_config, dict) and "size" in vectors_config:
+                    existing_size = vectors_config["size"]
+                else:
+                    existing_size = None
+                
+                # Check for required indexes in the payload schema
+                payload_schema = collection_info.payload_schema or {}
+                required_indexes = ["metadata.source", "metadata.is_cbt_manual", "metadata.chunk_type", "metadata.domain"]
+                has_all_indexes = all(idx in payload_schema for idx in required_indexes)
+                
+                if (existing_size and existing_size != 1536) or not has_all_indexes:
+                    print(f"Collection {self.collection_name} mismatch (size: {existing_size}, indexes: {list(payload_schema.keys())}). Deleting and recreating...")
+                    self.client.delete_collection(self.collection_name)
+                    exists = False
+            
             if not exists:
-                # Google text-embedding-004 uses 768 dimensions by default
+                # OpenAI text-embedding-3-small uses 1536 dimensions
                 self.client.create_collection(
                     collection_name=self.collection_name,
                     vectors_config=rest.VectorParams(
-                        size=768, 
+                        size=1536, 
                         distance=rest.Distance.COSINE
                     )
                 )
@@ -59,6 +77,20 @@ class VectorDBService:
                     collection_name=self.collection_name,
                     field_name="metadata.is_cbt_manual",
                     field_schema=rest.PayloadSchemaType.BOOL
+                )
+                
+                # Create payload index for 'chunk_type' for tier restriction filtering
+                self.client.create_payload_index(
+                    collection_name=self.collection_name,
+                    field_name="metadata.chunk_type",
+                    field_schema=rest.PayloadSchemaType.KEYWORD
+                )
+                
+                # Create payload index for 'domain' for domain-based retrieval filtering
+                self.client.create_payload_index(
+                    collection_name=self.collection_name,
+                    field_name="metadata.domain",
+                    field_schema=rest.PayloadSchemaType.KEYWORD
                 )
         except Exception as e:
             # Log error or handle as needed

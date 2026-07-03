@@ -7,9 +7,6 @@ class Settings(BaseSettings):
     QDRANT_URL: str
     COLLECTION_NAME: str
 
-    # Google Gemini Embeddings
-    GOOGLE_API_KEY: str
-    GOOGLE_EMBEDDING_MODEL: str = "gemini-embedding-001"
 
     MODEL_COUNSELING: str = "gpt-4.1"         # Main counselling response
     MODEL_BACKGROUND: str = "gpt-4.1-mini"     # Summarization, memory
@@ -18,6 +15,7 @@ class Settings(BaseSettings):
 
     # OpenAI API Configuration
     OPENAI_API_KEY: str
+    OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
 
     # App Settings
     PROJECT_NAME: str = "Santum AI RAG Service"
