@@ -28,6 +28,7 @@ class JSONIngestor:
         logger.info("Initializing JSON Ingestor Service...")
         self.vector_db = VectorDBService()
         self.restricted_ids = set()
+        self.results = []
         
         # Load restricted chunk IDs from compact list JSON
         restriction_file = os.path.join(
@@ -58,24 +59,54 @@ class JSONIngestor:
         filename = os.path.basename(file_path)
         logger.info(f"=== Starting Ingestion Process for: {filename} ===")
         
-        if not os.path.exists(file_path):
-            logger.error(f"File not found: {file_path}")
-            return
-
-        with open(file_path, "r", encoding="utf-8") as f:
-            try:
-                data = json.load(f)
-                logger.info(f"Loaded {len(data)} raw items from {filename}")
-            except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse JSON file {filename}: {e}")
-                return
-
-        documents = []
+        status = "Success"
+        error_message = None
+        total_raw = 0
         skipped_no_content = 0
         restricted_count = 0
         free_allowed_count = 0
         defaulted_domains = 0
         defaulted_chunk_types = 0
+        ingested = 0
+
+        if not os.path.exists(file_path):
+            logger.error(f"File not found: {file_path}")
+            self.results.append({
+                "filename": filename,
+                "status": "Failed (File Not Found)",
+                "error": f"Path '{file_path}' does not exist.",
+                "total_raw": 0,
+                "skipped": 0,
+                "restricted": 0,
+                "allowed": 0,
+                "defaulted_domains": 0,
+                "defaulted_chunk_types": 0,
+                "ingested": 0
+            })
+            return
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            try:
+                data = json.load(f)
+                total_raw = len(data)
+                logger.info(f"Loaded {total_raw} raw items from {filename}")
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse JSON file {filename}: {e}")
+                self.results.append({
+                    "filename": filename,
+                    "status": "Failed (JSON Parse Error)",
+                    "error": str(e),
+                    "total_raw": 0,
+                    "skipped": 0,
+                    "restricted": 0,
+                    "allowed": 0,
+                    "defaulted_domains": 0,
+                    "defaulted_chunk_types": 0,
+                    "ingested": 0
+                })
+                return
+
+        documents = []
 
         for item in data:
             item_id = item.get("id", "N/A")
@@ -116,7 +147,7 @@ class JSONIngestor:
             documents.append(doc)
 
         logger.info(f"Ingestion Analysis for {filename}:")
-        logger.info(f"  - Total raw items: {len(data)}")
+        logger.info(f"  - Total raw items: {total_raw}")
         logger.info(f"  - Skipped (missing content): {skipped_no_content}")
         logger.info(f"  - Flagged as RESTRICTED (paid tier): {restricted_count}")
         logger.info(f"  - Flagged as ALLOWED (free tier): {free_allowed_count}")
@@ -126,12 +157,114 @@ class JSONIngestor:
 
         if not documents:
             logger.warning(f"No valid documents prepared from {filename}. Skipping DB update.")
+            self.results.append({
+                "filename": filename,
+                "status": "Skipped (No Docs)",
+                "error": None,
+                "total_raw": total_raw,
+                "skipped": skipped_no_content,
+                "restricted": restricted_count,
+                "allowed": free_allowed_count,
+                "defaulted_domains": defaulted_domains,
+                "defaulted_chunk_types": defaulted_chunk_types,
+                "ingested": 0
+            })
             return
 
         # 5. Add to Vector DB (Uses staged ingestion with rate limiting)
         logger.info(f"Sending {len(documents)} documents to Qdrant collection...")
-        await self.vector_db.add_documents(documents)
-        logger.info(f"=== Completed Ingestion for: {filename} ===")
+        try:
+            await self.vector_db.add_documents(documents)
+            ingested = len(documents)
+            logger.info(f"=== Completed Ingestion for: {filename} ===")
+            self.results.append({
+                "filename": filename,
+                "status": "Success",
+                "error": None,
+                "total_raw": total_raw,
+                "skipped": skipped_no_content,
+                "restricted": restricted_count,
+                "allowed": free_allowed_count,
+                "defaulted_domains": defaulted_domains,
+                "defaulted_chunk_types": defaulted_chunk_types,
+                "ingested": ingested
+            })
+        except Exception as e:
+            logger.error(f"Error adding documents to vector DB for {filename}: {e}")
+            self.results.append({
+                "filename": filename,
+                "status": "Failed (DB Error)",
+                "error": str(e),
+                "total_raw": total_raw,
+                "skipped": skipped_no_content,
+                "restricted": restricted_count,
+                "allowed": free_allowed_count,
+                "defaulted_domains": defaulted_domains,
+                "defaulted_chunk_types": defaulted_chunk_types,
+                "ingested": 0
+            })
+
+    def generate_report(self):
+        """Generates and prints a consolidated final report of the ingestion run."""
+        report_lines = []
+        report_lines.append("="*80)
+        report_lines.append("                  FINAL DATA INGESTION REPORT")
+        report_lines.append("="*80)
+        
+        total_files = len(self.results)
+        successful_files = sum(1 for r in self.results if r["status"] == "Success")
+        failed_files = sum(1 for r in self.results if "Failed" in r["status"])
+        skipped_files = sum(1 for r in self.results if "Skipped" in r["status"])
+
+        report_lines.append(f"Files Processed: {total_files}")
+        report_lines.append(f"  - Successful:  {successful_files}")
+        report_lines.append(f"  - Failed:      {failed_files}")
+        report_lines.append(f"  - Skipped:     {skipped_files}")
+        report_lines.append("-" * 80)
+        
+        # Table Header
+        report_lines.append(f"{'Filename':<45} | {'Status':<15} | {'Raw':<6} | {'Ingested':<8} | {'Restr.':<6}")
+        report_lines.append("-" * 80)
+        
+        grand_raw = 0
+        grand_skipped = 0
+        grand_restricted = 0
+        grand_allowed = 0
+        grand_defaulted_domains = 0
+        grand_defaulted_chunk_types = 0
+        grand_ingested = 0
+
+        for r in self.results:
+            filename_trunc = r["filename"] if len(r["filename"]) <= 45 else r["filename"][:42] + "..."
+            status_str = r["status"]
+            report_lines.append(
+                f"{filename_trunc:<45} | {status_str:<15} | {r['total_raw']:<6} | {r['ingested']:<8} | {r['restricted']:<6}"
+            )
+            if r["error"]:
+                report_lines.append(f"   --> Error Details: {r['error']}")
+                
+            grand_raw += r["total_raw"]
+            grand_skipped += r["skipped"]
+            grand_restricted += r["restricted"]
+            grand_allowed += r["allowed"]
+            grand_defaulted_domains += r["defaulted_domains"]
+            grand_defaulted_chunk_types += r["defaulted_chunk_types"]
+            grand_ingested += r["ingested"]
+
+        report_lines.append("-" * 80)
+        report_lines.append("GRAND TOTALS:")
+        report_lines.append(f"  - Total Raw Items Loaded:            {grand_raw}")
+        report_lines.append(f"  - Total Skipped (Missing Content):    {grand_skipped}")
+        report_lines.append(f"  - Total Flagged as Restricted (Paid): {grand_restricted}")
+        report_lines.append(f"  - Total Flagged as Allowed (Free):   {grand_allowed}")
+        report_lines.append(f"  - Total Defaulted Domains:           {grand_defaulted_domains}")
+        report_lines.append(f"  - Total Defaulted Chunk Types:       {grand_defaulted_chunk_types}")
+        report_lines.append(f"  - Total Successfully Ingested:       {grand_ingested}")
+        report_lines.append("="*80)
+        
+        report_content = "\n".join(report_lines)
+        print(report_content)
+        logger.info("Ingestion complete. Detailed report printed above.")
 
 async def main():
     ingestor = JSONIngestor()
@@ -189,6 +322,9 @@ async def main():
     # Process sequentially to avoid overlapping rate limit delays
     for task in tasks:
         await ingestor.ingest_json(task["path"], task["is_cbt_manual"])
+
+    # Output the final consolidation report
+    ingestor.generate_report()
 
 if __name__ == "__main__":
     asyncio.run(main())

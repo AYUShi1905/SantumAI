@@ -7,6 +7,8 @@ This document tracks all approved features and improvements.
 *   **[x] DOCX Support:** Implemented (Includes Table Extraction logic).
 *   **[x] Scanned PDF Detection:** Returns error for non-text PDFs.
 *   **[x] File Management:** Added List, Delete by Filename, and Clear All endpoints.
+*   **[x] Ingestion Reporting:** Added a consolidated run report at the end of the JSON ingestion script to display success/failure stats per file.
+
 
 ## 1. Chat & Reasoning Phase
 *   **[x] Chat Request Models:** Updated with `PlanLevel` and `use_reasoning` override.
