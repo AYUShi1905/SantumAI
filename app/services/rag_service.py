@@ -109,12 +109,13 @@ class RAGService:
         system_prompt_str = builder.build(has_context=has_context, follow_up_allowed=follow_up_allowed)
         
         # 3. Assemble LangChain Messages
-        qa_messages = []
+        qa_messages = [
+            ("system", system_prompt_str),
+        ]
         if history_summary:
             qa_messages.append(("system", f"Summary of previous conversation: {history_summary}"))
 
         qa_messages.extend([
-            ("system", system_prompt_str),
             MessagesPlaceholder("chat_history"),
             ("human", "{input}"),
         ])

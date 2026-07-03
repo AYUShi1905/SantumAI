@@ -46,6 +46,7 @@ This document tracks all approved features and improvements.
 *   [x] **LangSmith Trace Bundling:** Wrapped RAG service request flows in a `@traceable` decorator to bundle parallel traces under a single parent run.
 *   [x] **OpenAI Migration:** Migrated primary LLM provider from Groq to OpenAI, transitioning to the `gpt-4.1` model family (including counseling, moderation, and routing) and updating configuration keys.
 *   [x] **OpenAI Embeddings Migration:** Migrated vector retriever to `text-embedding-3-small` (1536 dimensions) and implemented automatic database dimension mismatch detection and collection recreation.
+*   [x] **OpenAI Prompt Optimization & Caching:** Migrated and optimized router, safety, and counseling prompts from LLaMA to OpenAI, enabled native JSON Mode, added few-shot classification examples, mitigated sycophancy, and restructured the main LLM to leverage **Prompt Caching** (TTFT and cost reduction).
 *   [x] Streamlit Frontend: Implemented a full-featured testing UI in `frontend/app.py`.
 *   [x] Tests: Add unit/integration tests for summarization and chat.
 *   [x] **Pre-deployment Check Script:** Implemented `check_project.py` in the `app` folder to compile python files and run the test suite.
