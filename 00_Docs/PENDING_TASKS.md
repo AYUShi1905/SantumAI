@@ -60,7 +60,7 @@ This document tracks all approved features and improvements.
 ## 5. Future Proposals (Planned)
 *   **[x] RAG Tier Restrictions:** Implement metadata-based RAG filtering (`is_restricted` check) to trigger soft upgrade prompts on the Free tier. (See [RAG_Tier_Restrictions_Plan.md](00_Docs/RAG_Data/RAG_Tier_Restrictions_Plan.md)).
 *   **[x] RAG Data Embedding:** Run the OpenAI-to-Qdrant embedding pipeline for the new JSON RAG dataset in `01_Embed_Ready` using metadata pruning and rate-limiting safeguards. (See [RAG_Embedding_Plan.md](00_Docs/RAG_Data/RAG_Embedding_Plan.md)).
-*   **[ ] Domain-Based Retrieval:** Update the `RouterService` to classify query domains (e.g., `cbt_panic`, `cbt_depression`) and apply Qdrant metadata filters dynamically to restrict RAG retrieval to the relevant domain.
+*   **[x] Domain-Based Retrieval:** Update the RouterService to classify query domains (e.g., `cbt_panic`, `cbt_depression`) and apply Qdrant metadata filters dynamically to restrict RAG retrieval to the relevant domain.
 
 ---
-*Updated: July 1, 2026*
+*Updated: July 3, 2026*

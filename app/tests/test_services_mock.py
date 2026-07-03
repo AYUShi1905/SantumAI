@@ -55,29 +55,32 @@ class TestServicesMock(unittest.IsolatedAsyncioTestCase):
     async def test_router_greeting(self):
         service = RouterService()
         service.chain = AsyncMock()
-        service.chain.ainvoke.return_value = '{"classification": "greeting", "standalone_query": "hi"}'
+        service.chain.ainvoke.return_value = '{"classification": "greeting", "standalone_query": "hi", "domain": "none"}'
         
-        classification, query = await service.process_query("hi", chat_history=[])
+        classification, query, domain = await service.process_query("hi", chat_history=[])
         self.assertEqual(classification, "greeting")
         self.assertEqual(query, "hi")
+        self.assertEqual(domain, "none")
 
     async def test_router_rag_required(self):
         service = RouterService()
         service.chain = AsyncMock()
-        service.chain.ainvoke.return_value = '{"classification": "rag_required", "standalone_query": "how does cbt handle worry postponement"}'
+        service.chain.ainvoke.return_value = '{"classification": "rag_required", "standalone_query": "how does cbt handle worry postponement", "domain": "cbt_gad"}'
         
-        classification, query = await service.process_query("how to do worry postponement?", chat_history=[])
+        classification, query, domain = await service.process_query("how to do worry postponement?", chat_history=[])
         self.assertEqual(classification, "rag_required")
         self.assertEqual(query, "how does cbt handle worry postponement")
+        self.assertEqual(domain, "cbt_gad")
 
     async def test_router_conversational(self):
         service = RouterService()
         service.chain = AsyncMock()
-        service.chain.ainvoke.return_value = '{"classification": "conversational", "standalone_query": "I am feeling sad"}'
+        service.chain.ainvoke.return_value = '{"classification": "conversational", "standalone_query": "I am feeling sad", "domain": "none"}'
         
-        classification, query = await service.process_query("I am feeling sad today.", chat_history=[])
+        classification, query, domain = await service.process_query("I am feeling sad today.", chat_history=[])
         self.assertEqual(classification, "conversational")
         self.assertEqual(query, "I am feeling sad")
+        self.assertEqual(domain, "none")
 
     async def test_router_exception_handling(self):
         service = RouterService()
@@ -85,9 +88,10 @@ class TestServicesMock(unittest.IsolatedAsyncioTestCase):
         service.chain.ainvoke.side_effect = Exception("Groq Rate Limit")
         
         # On error, router should default to conversational and returning the original message
-        classification, query = await service.process_query("Tell me about CBT.", chat_history=[])
+        classification, query, domain = await service.process_query("Tell me about CBT.", chat_history=[])
         self.assertEqual(classification, "conversational")
         self.assertEqual(query, "Tell me about CBT.")
+        self.assertEqual(domain, "none")
 
 if __name__ == "__main__":
     unittest.main()

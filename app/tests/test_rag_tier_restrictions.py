@@ -26,7 +26,7 @@ class TestRAGTierRestrictions(unittest.IsolatedAsyncioTestCase):
 
         # Setup standard mock behaviors
         self.mock_mod.check_message = AsyncMock(return_value=(True, None))
-        self.mock_router.process_query = AsyncMock(return_value=("rag_required", "query"))
+        self.mock_router.process_query = AsyncMock(return_value=("rag_required", "query", "none"))
 
         self.mock_vectorstore = MagicMock()
         self.mock_retriever = MagicMock()
@@ -115,6 +115,35 @@ class TestRAGTierRestrictions(unittest.IsolatedAsyncioTestCase):
         meta = json.loads(chunks[-1].strip())
         self.assertEqual(meta["mode"], "rag_complex")
         self.assertEqual(meta["plan"], PlanLevel.STANDARD)
+
+    async def test_domain_based_retrieval_filtering(self):
+        # Setup router mock to return a specific domain
+        self.mock_router.process_query = AsyncMock(return_value=("rag_required", "how to stop a panic attack", "cbt_panic"))
+        
+        mock_doc = Document(
+            page_content="CBT panic control techniques.", 
+            metadata={"id": "panic_chunk_001", "domain": "cbt_panic"}
+        )
+        self.mock_retriever.ainvoke = AsyncMock(return_value=[mock_doc])
+
+        chunks = []
+        async for chunk in self.rag_service.get_streaming_response("how to stop a panic attack", chat_history=[], plan_level=PlanLevel.STANDARD, remaining_tokens=1000):
+            chunks.append(chunk)
+
+        # Verify that as_retriever was called with the cbt_panic domain filter in search_kwargs
+        self.mock_vectorstore.as_retriever.assert_called()
+        call_kwargs = self.mock_vectorstore.as_retriever.call_args[1]
+        search_kwargs = call_kwargs.get("search_kwargs", {})
+        
+        self.assertEqual(search_kwargs.get("k"), 2) # Standard plan gets k=2
+        self.assertIn("filter", search_kwargs)
+        
+        # Verify Qdrant filter structure
+        qdrant_filter = search_kwargs["filter"]
+        self.assertEqual(len(qdrant_filter.must), 1)
+        field_condition = qdrant_filter.must[0]
+        self.assertEqual(field_condition.key, "metadata.domain")
+        self.assertEqual(field_condition.match.value, "cbt_panic")
 
 if __name__ == "__main__":
     unittest.main()

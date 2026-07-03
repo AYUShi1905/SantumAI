@@ -154,32 +154,20 @@ class RAGService:
         # Fire all tasks in parallel as background tasks
         mod_task = asyncio.create_task(self.moderation_service.check_message(query))
         router_task = asyncio.create_task(self.router_service.process_query(query, chat_history, history_summary))
-        
-        # Define and fire retrieval task (Speculative Search)
-        vectorstore = self.vector_db_service.get_vectorstore()
-        search_kwargs = {"k": 5}
-        
-        retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
-        retrieval_task = asyncio.create_task(retriever.ainvoke(query))
 
         # 2. Wait for Moderation & Routing (Usually faster than retrieval/embedding)
         try:
             # We wait for the fastest "check" components first to allow early exits
-            # results = await asyncio.gather(mod_task, router_task, return_exceptions=True)
-            # Unpack results
             moderation_result = await mod_task
             router_result = await router_task
         except Exception as e:
             logger.error(f"Error in parallel orchestration tasks: {e}")
             moderation_result = (True, None) # Fail-open
-            router_result = ("simple", query)
+            router_result = ("conversational", query, "none")
 
         # 2.1 Safety Check (Critical Priority)
         is_safe, category = moderation_result
         if not is_safe:
-            # Cancel retrieval if it's still running
-            retrieval_task.cancel()
-            
             current_tokens = 0
             async for chunk in self.moderation_service.create_empathetic_refusal(category, query):
                 if chunk:
@@ -197,7 +185,7 @@ class RAGService:
             return
         
         # 3. Reasoning & Routing Result
-        classification, standalone_query = router_result
+        classification, standalone_query, domain = router_result
         if use_reasoning is None:
             # Reasoning is now primarily for RAG-required queries or complex conversational pieces
             use_reasoning = (classification in ["rag_required", "conversational"])
@@ -210,9 +198,6 @@ class RAGService:
         skip_retrieval = (classification in ["greeting", "conversational"])
         
         if skip_retrieval:
-            # Cancel retrieval - we don't need it
-            retrieval_task.cancel()
-            
             llm = self.llm_service.get_llm(use_reasoning=use_reasoning)
             qa_prompt = self._get_prompts(
                 history_summary=history_summary, 
@@ -271,10 +256,20 @@ class RAGService:
             }
             dynamic_k = k_mapping.get(plan_level, 1)
             
-            # Since retrieval_task was already fired with k=5, we can either re-fire 
-            # or just slice the results. Slicing is faster.
-            docs = await retrieval_task
-            docs = docs[:dynamic_k] # Apply tiered limit
+            search_kwargs = {"k": dynamic_k}
+            if domain and domain != "none":
+                search_kwargs["filter"] = rest.Filter(
+                    must=[
+                        rest.FieldCondition(
+                            key="metadata.domain",
+                            match=rest.MatchValue(value=domain)
+                        )
+                    ]
+                )
+            
+            vectorstore = self.vector_db_service.get_vectorstore()
+            retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
+            docs = await retriever.ainvoke(standalone_query)
             
             # Check for Free tier restrictions on the retrieved chunks
             if plan_level == PlanLevel.FREE:
