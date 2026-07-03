@@ -159,17 +159,6 @@ class RAGService:
         vectorstore = self.vector_db_service.get_vectorstore()
         search_kwargs = {"k": 5}
         
-        # FREE plan only has access to Santum.net (is_cbt_manual == False)
-        # STANDARD and PREMIUM plans have access to both Santum.net and Generalised Anxiety CBT manual content
-        if plan_level == PlanLevel.FREE:
-            search_kwargs["filter"] = rest.Filter(
-                must=[
-                    rest.FieldCondition(
-                        key="metadata.is_cbt_manual",
-                        match=rest.MatchValue(value=False)
-                    )
-                ]
-            )
         retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
         retrieval_task = asyncio.create_task(retriever.ainvoke(query))
 
@@ -286,6 +275,28 @@ class RAGService:
             # or just slice the results. Slicing is faster.
             docs = await retrieval_task
             docs = docs[:dynamic_k] # Apply tiered limit
+            
+            # Check for Free tier restrictions on the retrieved chunks
+            if plan_level == PlanLevel.FREE:
+                for doc in docs:
+                    if doc.metadata.get("is_restricted", False):
+                        logger.info(f"Free-tier user query matched restricted chunk {doc.metadata.get('id')}. Triggering soft upgrade refusal.")
+                        
+                        upgrade_prompt = "To access interactive exercises, worksheets, and specialized CBT tools, please upgrade to our Standard or Premium plan."
+                        yield upgrade_prompt
+                        
+                        query_tokens = count_tokens(query)
+                        output_tokens = count_tokens(upgrade_prompt)
+                        
+                        metadata = {
+                            "total_tokens": query_tokens + output_tokens,
+                            "status": "completed",
+                            "model_used": "simple",
+                            "plan": plan_level,
+                            "mode": "tier_restriction_refusal"
+                        }
+                        yield f"\n\n{json.dumps(metadata)}"
+                        return
         except Exception as e:
             logger.error(f"Retrieval Error: {e}")
             docs = []
