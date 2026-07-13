@@ -49,7 +49,14 @@ class SystemPromptBuilder:
         elif self.plan_level == PlanLevel.STANDARD:
             guidance = "Focus on high-quality emotional validation and structured inquiry."
         else:
-            guidance = "Focus on active listening and emotional validation."
+            guidance = (
+                "Focus on active listening, emotional validation, and general counseling support. "
+                "You may provide brief general psychoeducation or general support. "
+                "CRITICAL CONSTRAINT: If the user asks for precise training, step-by-step CBT exercises, worksheets, "
+                "or structured therapeutic tools, you must NOT provide the steps or instructions. Instead, provide "
+                "only brief general context and include a polite, soft upgrade prompt (under 30 words) explaining that "
+                "interactive CBT exercises and worksheets are premium features available on our Standard or Premium plans."
+            )
         
         # Add word limit instruction
         word_limit = 80 if self.plan_level == PlanLevel.FREE else (100 if self.plan_level == PlanLevel.STANDARD else 120)

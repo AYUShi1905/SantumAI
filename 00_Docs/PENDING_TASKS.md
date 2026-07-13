@@ -57,6 +57,8 @@ This document tracks all approved features and improvements.
 *   **[x] Session Guardrails:** (Handled on Frontend) Disclaimer acknowledgment state is enforced directly by the client UI.
 *   **[x] Advanced Hardening:** Implement full security-first prompt architecture to prevent jailbreaking and instruction disclosure (Prop-01).
 *   **[x] Format Enforcement:** Integrate strict Markdown and empathy-first response rules into the `RAGService`.
+*   **[x] Free-Tier CBT Safeguard:** Configured SystemPromptBuilder instructions to block generation of precise step-by-step CBT exercises/worksheets on the Free tier, enforcing a soft upgrade prompt under 30 words.
+
 
 ## 5. Future Proposals (Planned)
 *   **[x] RAG Tier Restrictions:** Implement metadata-based RAG filtering (`is_restricted` check) to trigger soft upgrade prompts on the Free tier. (See [RAG_Tier_Restrictions_Plan.md](00_Docs/RAG_Data/RAG_Tier_Restrictions_Plan.md)).

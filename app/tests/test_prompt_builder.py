@@ -25,7 +25,7 @@ class TestSystemPromptBuilder(unittest.TestCase):
         # Free plan (k limit instruction and active listening)
         builder = SystemPromptBuilder(plan_level=PlanLevel.FREE)
         prompt = builder.build(has_context=False)
-        self.assertIn("Focus on active listening and emotional validation", prompt)
+        self.assertIn("Focus on active listening, emotional validation", prompt)
         self.assertIn("Your response MUST be under 80 words", prompt)
 
     def test_plan_standard(self):

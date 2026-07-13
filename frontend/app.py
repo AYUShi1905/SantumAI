@@ -24,16 +24,16 @@ with st.sidebar:
     
     st.subheader("👤 User Configuration")
     plan_level = st.selectbox("Plan Level", ["free", "standard", "premium"], index=0)
-    reasoning_mode = st.radio("Reasoning Mode", ["Auto", "Force Simple (8B)", "Force Reasoning (70B)"], index=0)
+    reasoning_mode = st.radio("Reasoning Mode", ["Auto", "Force Simple (gpt-4.1-mini)", "Force Reasoning (gpt-4.1)"], index=0)
     remaining_tokens = st.slider("Remaining Tokens", min_value=0, max_value=5000, value=1000, step=100)
     happiness = st.slider("😃 Happiness", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
     stress = st.slider("😰 Stress", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
     energy = st.slider("⚡ Energy", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
     
     use_reasoning = None
-    if reasoning_mode == "Force Simple (8B)":
+    if "Force Simple" in reasoning_mode:
         use_reasoning = False
-    elif reasoning_mode == "Force Reasoning (70B)":
+    elif "Force Reasoning" in reasoning_mode:
         use_reasoning = True
 
     st.divider()
@@ -93,7 +93,7 @@ with st.sidebar:
 
 # Main Chat Interface
 st.title("💬 Sai - Your AI Companion")
-st.caption("Empathetic AI counseling powered by Llama 3 & RAG")
+st.caption("Empathetic AI counseling powered by OpenAI & RAG")
 
 # Summary Section
 if st.button("📝 Summarize Conversation"):
