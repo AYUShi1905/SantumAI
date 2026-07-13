@@ -278,16 +278,50 @@ class RAGService:
                     if doc.metadata.get("is_restricted", False):
                         logger.info(f"Free-tier user query matched restricted chunk {doc.metadata.get('id')}. Triggering soft upgrade refusal.")
                         
-                        upgrade_prompt = "To access interactive exercises, worksheets, and specialized CBT tools, please upgrade to our Standard or Premium plan."
-                        yield upgrade_prompt
+                        exercise_name = doc.metadata.get("section_title") or doc.metadata.get("title") or "interactive exercise"
+                        manual_name = doc.metadata.get("manual_name") or doc.metadata.get("domain") or "specialized manual"
                         
+                        system_prompt = SystemPromptBuilder.get_tier_restriction_prompt(
+                            query=query,
+                            exercise_name=exercise_name,
+                            manual_name=manual_name,
+                            happiness=happiness,
+                            stress=stress,
+                            energy=energy
+                        )
+                        
+                        llm = self.llm_service.get_routing_llm()
+                        
+                        messages = [
+                            ("system", system_prompt),
+                            ("human", query)
+                        ]
+                        
+                        full_response = ""
+                        current_output_tokens = 0
+                        
+                        async for chunk in llm.astream(messages):
+                            if chunk.content:
+                                full_response += chunk.content
+                                yield chunk.content
+                            
+                            meta = None
+                            if hasattr(chunk, "usage_metadata") and chunk.usage_metadata:
+                                meta = chunk.usage_metadata
+                            elif hasattr(chunk, "response_metadata") and chunk.response_metadata:
+                                meta = chunk.response_metadata.get("token_usage")
+                            
+                            if meta:
+                                current_output_tokens = meta.get("output_tokens") or meta.get("completion_tokens") or 0
+                                
                         query_tokens = count_tokens(query)
-                        output_tokens = count_tokens(upgrade_prompt)
-                        
+                        if current_output_tokens == 0:
+                            current_output_tokens = count_tokens(full_response)
+                            
                         metadata = {
-                            "total_tokens": query_tokens + output_tokens,
+                            "total_tokens": query_tokens + current_output_tokens,
                             "status": "completed",
-                            "model_used": "simple",
+                            "model_used": "routing",
                             "plan": plan_level,
                             "mode": "tier_restriction_refusal"
                         }

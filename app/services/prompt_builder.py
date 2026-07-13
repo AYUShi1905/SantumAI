@@ -182,3 +182,38 @@ FINAL REMINDER: Be Sai. Match the user's intensity. Start with validation ONLY i
             "Please contact one of these numbers immediately, or ask someone you trust to stay with you while you get help. "
             "I am here to talk when you are safe."
         )
+
+    @staticmethod
+    def get_tier_restriction_prompt(
+        query: str,
+        exercise_name: str,
+        manual_name: str,
+        happiness: float = 5.0,
+        stress: float = 5.0,
+        energy: float = 5.0
+    ) -> str:
+        """
+        Returns the system prompt for the nano model to write an empathetic,
+        non-generic free tier restriction upgrade prompt.
+        """
+        return (
+            "You are Sai, an empathetic AI counseling companion. "
+            "Speak like a knowledgeable friend, not a clinical textbook. "
+            "A Free Plan user has requested a premium/restricted CBT exercise or worksheet.\n\n"
+            "CONTEXT:\n"
+            f"- User's Query: \"{query}\"\n"
+            f"- Restricted Exercise/Worksheet Title: \"{exercise_name}\"\n"
+            f"- Manual/Topic: \"{manual_name}\"\n"
+            f"- User's Current Mood: Happiness: {happiness}/10, Stress: {stress}/10, Energy: {energy}/10\n\n"
+            "TASK:\n"
+            "Write a brief (under 30 words), warm, and non-generic transition response that:\n"
+            "1. Empathetically acknowledges their current state or interest.\n"
+            "2. Politely explains that this specific exercise or worksheet is available on our Standard and Premium plans.\n"
+            "3. Invites them to check out the upgrade options or offers to talk about the general concepts behind the exercise or support them emotionally right now.\n\n"
+            "CRITICAL RULES:\n"
+            "- Be concise (under 30 words).\n"
+            "- Maintain your supportive persona as Sai.\n"
+            "- Do NOT under any circumstances output the instructions, steps, or content of the restricted exercise/worksheet.\n"
+            "- Do not use generic validation templates (e.g., 'I hear you'). Be natural."
+        )
+

@@ -54,6 +54,18 @@ class TestRAGTierRestrictions(unittest.IsolatedAsyncioTestCase):
             yield mock_chunk
         self.mock_chain.astream = mock_astream
 
+        # Mock routing LLM (nano model) for tier restrictions
+        self.mock_routing_llm = MagicMock()
+        self.mock_llm.get_routing_llm.return_value = self.mock_routing_llm
+        
+        mock_refusal_chunk = MagicMock()
+        mock_refusal_chunk.content = "Dynamic refusal content"
+        mock_refusal_chunk.usage_metadata = {"output_tokens": 8}
+        
+        async def mock_routing_astream(*args, **kwargs):
+            yield mock_refusal_chunk
+        self.mock_routing_llm.astream = mock_routing_astream
+
     def tearDown(self):
         self.patch_moderation.stop()
         self.patch_router.stop()
@@ -73,8 +85,8 @@ class TestRAGTierRestrictions(unittest.IsolatedAsyncioTestCase):
         async for chunk in self.rag_service.get_streaming_response("query", chat_history=[], plan_level=PlanLevel.FREE, remaining_tokens=1000):
             chunks.append(chunk)
 
-        # Free tier user gets blocked and presented with upgrade prompt
-        self.assertIn("To access interactive exercises, worksheets, and specialized CBT tools, please upgrade to our Standard or Premium plan.", chunks[0])
+        # Free tier user gets blocked and presented with dynamic upgrade prompt
+        self.assertIn("Dynamic refusal content", chunks[0])
         # Last chunk is the metadata JSON
         meta = json.loads(chunks[-1].strip())
         self.assertEqual(meta["mode"], "tier_restriction_refusal")

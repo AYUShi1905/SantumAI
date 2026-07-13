@@ -14,6 +14,7 @@ class LLMProviderService:
         # Aligned with AI Architecture Summary 2.pdf
         self.counseling_model = settings.MODEL_COUNSELING
         self.background_model = settings.MODEL_BACKGROUND
+        self.routing_model = settings.MODEL_ROUTING
 
     def get_llm(self, use_reasoning: bool = False, streaming: bool = True) -> ChatOpenAI:
         """
@@ -36,3 +37,16 @@ class LLMProviderService:
             temperature=0.7, # Default temperature for counseling
             max_tokens=max_tokens
         )
+
+    def get_routing_llm(self, streaming: bool = True) -> ChatOpenAI:
+        """
+        Returns a configured ChatOpenAI instance using the routing model (nano).
+        """
+        return ChatOpenAI(
+            api_key=self.api_key,
+            model=self.routing_model,
+            streaming=streaming,
+            temperature=0.7,
+            max_tokens=200
+        )
+
