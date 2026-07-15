@@ -9,14 +9,14 @@ A high-performance, scalable Python-based RAG (Retrieval-Augmented Generation) m
 | **API Framework** | **FastAPI** | High-performance, asynchronous, and easy integration with Python AI libraries. |
 | **Orchestration** | **LangChain** | Standardizes the "Chain" of logic between the user, the database, and the LLM. |
 | **Vector Database** | **Qdrant** | Production-grade, Rust-based engine for sub-10ms semantic search. |
-| **Embedding Model** | **Google Gemini (004)** | High-quality, fast, and cost-effective embeddings with a 768-dim output. |
+| **Embedding Model** | **OpenAI text-embedding-3-small** | Industry standard, fast, and cost-effective embeddings with a 1536-dim output. |
 | **LLM (Brain)** | **OpenAI GPT-4.1 Family** | Primary LLM for all reasoning; high quality empathy and context tracking. |
 
 ## 3. Data Processing Flow (Ingestion)
 *This happens once when new manuals are added.*
 1.  **Parsing:** `PyMuPDF` extracts text from PDF/DOCX counseling manuals.
 2.  **Chunking:** `RecursiveCharacterTextSplitter` breaks text into ~500-800 token pieces with 10% overlap to preserve context.
-3.  **Embedding:** Google Gemini converts these text chunks into 768-dimensional mathematical vectors.
+3.  **Embedding:** OpenAI converts these text chunks into 1536-dimensional mathematical vectors.
 4.  **Storage:** Vectors and their original text (metadata) are stored in a **Qdrant Collection**.
 
 ## 4. Request Lifecycle (Inference - Streaming)

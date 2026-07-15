@@ -59,7 +59,7 @@ app/
 *   Implement a global exception handler for logging internal server errors without leaking sensitive stack traces to the client.
 
 ### 3.4 RAG Specifics
-*   **Embeddings:** All documents must be embedded using the Google Gemini `text-embedding-004` model (768 dimensions).
+*   **Embeddings:** All documents must be embedded using the OpenAI `text-embedding-3-small` model (1536 dimensions).
 *   **Streaming:** Use `StreamingResponse` for AI chat to ensure low latency.
 *   **Metadata:** The final chunk of any stream MUST be a JSON object containing `total_tokens`.
 
