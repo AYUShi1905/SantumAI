@@ -128,7 +128,6 @@ class RAGService:
         query: str, 
         chat_history: List[BaseMessage],
         plan_level: PlanLevel = PlanLevel.FREE,
-        use_reasoning: Optional[bool] = None,
         history_summary: Optional[str] = None,
         remaining_tokens: int = 0,
         happiness: float = 5.0,
@@ -187,9 +186,8 @@ class RAGService:
         
         # 3. Reasoning & Routing Result
         classification, standalone_query, domain = router_result
-        if use_reasoning is None:
-            # Reasoning is now primarily for RAG-required queries or complex conversational pieces
-            use_reasoning = (classification in ["rag_required", "conversational"])
+        # Reasoning is now primarily for RAG-required queries or complex conversational pieces
+        use_reasoning = (classification in ["rag_required", "conversational"])
         
         # 4. Natural Follow-up Control: Disable questions for simple greetings
         follow_up_allowed = (classification != "greeting")

@@ -49,7 +49,7 @@ async def main():
                 query=query,
                 chat_history=[],
                 plan_level=PlanLevel.STANDARD,
-                use_reasoning=None,
+
                 history_summary=None,
                 remaining_tokens=1000,
                 happiness=5.0,

@@ -24,17 +24,10 @@ with st.sidebar:
     
     st.subheader("👤 User Configuration")
     plan_level = st.selectbox("Plan Level", ["free", "standard", "premium"], index=0)
-    reasoning_mode = st.radio("Reasoning Mode", ["Auto", "Force Simple (gpt-4.1-mini)", "Force Reasoning (gpt-4.1)"], index=0)
     remaining_tokens = st.slider("Remaining Tokens", min_value=0, max_value=5000, value=1000, step=100)
     happiness = st.slider("😃 Happiness", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
     stress = st.slider("😰 Stress", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
     energy = st.slider("⚡ Energy", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
-    
-    use_reasoning = None
-    if "Force Simple" in reasoning_mode:
-        use_reasoning = False
-    elif "Force Reasoning" in reasoning_mode:
-        use_reasoning = True
 
     st.divider()
 
@@ -142,7 +135,6 @@ if prompt := st.chat_input("How are you feeling today?"):
             "message": prompt,
             "chat_history": st.session_state.messages[:-1], # Exclude current message
             "plan_level": plan_level,
-            "use_reasoning": use_reasoning,
             "history_summary": st.session_state.current_summary,
             "remaining_tokens": remaining_tokens,
             "happiness": happiness,

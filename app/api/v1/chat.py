@@ -59,7 +59,7 @@ async def chat_rag_stream(request: ChatRequest):
         query=request.message,
         chat_history=history,
         plan_level=request.plan_level,
-        use_reasoning=request.use_reasoning,
+
         history_summary=request.history_summary,
         remaining_tokens=request.remaining_tokens,
         happiness=request.happiness,

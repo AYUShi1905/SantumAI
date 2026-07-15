@@ -23,7 +23,6 @@ Streams an empathetic, real-time AI response grounded in retrieved counseling ma
   ],
   "history_summary": "The user previously discussed their career goals and general life stressors.",
   "plan_level": "premium",
-  "use_reasoning": null,
   "remaining_tokens": 1000,
   "happiness": 5.0,
   "stress": 7.5,
@@ -39,7 +38,6 @@ Streams an empathetic, real-time AI response grounded in retrieved counseling ma
     *   *Free:* Input limit of 80 words. Retrieves only Santum.net FAQ. Attempting to retrieve restricted CBT exercises triggers an automatic soft upgrade message.
     *   *Standard:* Input limit of 100 words. Retrieves up to `k=2` chunks from standard CBT manuals.
     *   *Premium:* Input limit of 120 words. Retrieves up to `k=3` chunks from all CBT manuals.
-*   `use_reasoning` *(boolean, optional)*: `true` (forces counseling model `gpt-4.1`), `false` (forces background model `gpt-4.1-mini`), or `null` (auto-routes dynamically).
 *   `remaining_tokens` *(integer, optional, default: 0)*: User's token balance. If `<= 0`, the endpoint refuses to process.
 *   `happiness` *(float, optional, default: 5.0)*: User mood scale `[0.0 to 10.0]`.
 *   `stress` *(float, optional, default: 5.0)*: User mood scale `[0.0 to 10.0]`.
